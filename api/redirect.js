@@ -1,36 +1,21 @@
 export default function handler(req, res) {
-  const { valid, ref } = req.query;
-  const allowedDomain = 'vmry7.ttrk.io';
+  // ===================================================================
+  // Affiliate destination — kept SERVER-SIDE so it never appears in the
+  // landing page source. The landing page only ever links to /api/redirect.
+  // The base URL already ends with "&s1=" so the sub-id is appended to it.
+  // ===================================================================
+  const OFFER_BASE = 'https://spnccrzone.com/?oex3=YfSxxtRXR3mRX1YEz8JilRHjzsqQfUmwvQJDRoz7h5U%3d&s1=';
 
-  const isValid = valid === 'true' || (ref && ref.includes(allowedDomain));
+  // Pull the tracking sub-id from the incoming click (any of these keys).
+  const sub = (req.query.s1 || req.query.campid || req.query.s2 || req.query.sub_id || '').toString();
 
+  const dest = OFFER_BASE + encodeURIComponent(sub);
+
+  // Never cache a redirect, and don't leak the referrer onward.
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
+  res.setHeader('Referrer-Policy', 'no-referrer');
 
-  if (isValid) {
-    return res.redirect(302, 'https://vmry7.ttrk.io/click' );
-  } else {
-    res.status(403).send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Access Denied</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f9fafb; color: #111827; }
-            .container { text-align: center; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 400px; width: 90%; }
-            h1 { color: #ef4444; font-size: 1.5rem; margin-bottom: 1rem; }
-            p { color: #4b5563; margin-bottom: 0; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>No Redirect</h1>
-            <p>Invalid traffic source. You cannot access this link directly.</p>
-          </div>
-        </body>
-      </html>
-    `);
-  }
+  return res.redirect(302, dest);
 }

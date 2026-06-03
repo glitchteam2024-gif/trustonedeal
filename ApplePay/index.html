@@ -6,32 +6,22 @@
 <title>$750 Apple Cash &mdash; Claim Yours</title>
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Claim your $750 Apple Cash reward. Complete a few simple offers and get paid straight to your Apple Wallet.">
+<meta property="og:title" content="$750 Apple Cash — Claim Yours">
+<meta property="og:description" content="Complete a few simple offers and get $750 Apple Cash sent to your Apple Wallet.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/images/Applepay750.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/images/Applepay750.png">
+<link rel="apple-touch-icon" href="/images/Applepay750.png">
+<link rel="preload" as="image" href="../images/Applepay750.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<!-- TikTok In-App Browser Breakout Script -->
-<script>
-(function() {
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var isTikTok = /tiktok|musical_ly|bytedance/i.test(ua);
-  if (!isTikTok) return;
-  try {
-    if (sessionStorage.getItem('ttBreakout') === '1') return;
-    sessionStorage.setItem('ttBreakout', '1');
-  } catch (e) {}
-  var currentUrl = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  var isAndroid = /android/i.test(ua);
-  if (isIOS) {
-    window.location.href = 'x-safari-' + currentUrl;
-    setTimeout(function() { window.location.href = currentUrl; }, 25);
-  } else if (isAndroid) {
-    var intent = 'intent://' + currentUrl.replace(/https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
-    window.location.href = intent;
-    setTimeout(function() { window.location.href = currentUrl; }, 25);
-  }
-})();
-</script>
+<!-- NOTE: The old forced "breakout" jump (x-safari-/intent://) was removed —
+     it failed silently on modern iOS/Android and stranded users. We now keep
+     the redirect inside the webview (most reliable) and show a gentle
+     "open in browser" hint instead. See the script at the bottom. -->
 <style>
 /* ============================================
    $750 APPLE CASH — iPhone-Optimized (Apple themed)
@@ -230,7 +220,7 @@ body {
     <div class="sr-item"><span class="val">4.8&#9733;</span><span class="label">Rating</span></div>
   </div>
   <!-- Primary CTA -->
-  <a href="#" class="cta-btn animate-glow" onclick="showTip(event)">
+  <a href="/go" data-go class="cta-btn animate-glow" onclick="showTip(event)">
     <span class="shimmer animate-shimmer"></span>
     <span style="position:relative;z-index:1">CLAIM $750 APPLE CASH NOW</span>
   </a>
@@ -324,7 +314,7 @@ body {
   </div>
   <!-- Bottom CTA -->
   <div class="bottom-cta">
-    <a href="#" class="cta-btn animate-glow" onclick="showTip(event)">
+    <a href="/go" data-go class="cta-btn animate-glow" onclick="showTip(event)">
       <span class="shimmer animate-shimmer"></span>
       <span style="position:relative;z-index:1">GET MY $750 APPLE CASH</span>
     </a>
@@ -339,7 +329,7 @@ body {
     <div class="mc-label">One last step</div>
     <div class="mc-title">Claim your $750 Apple Cash</div>
     <div class="mc-desc">Enter your email and complete your first offer to unlock and confirm your $750 Apple Cash reward.</div>
-    <a href="#" class="mc-btn" onclick="handleRedirect(event)">Continue &rarr; Claim $750 Now</a>
+    <a href="/go" data-go class="mc-btn" onclick="handleRedirect(event)">Continue &rarr; Claim $750 Now</a>
   </div>
 </div>
 <script>
@@ -374,16 +364,31 @@ body {
   }
   draw();
 })();
-// ---- CTA & Redirect ----
-// The real offer URL lives ONLY in /api/redirect (server-side), never here.
-// We forward all incoming query params so campid / s1 / utm_* pass through.
-function showTip(e) { e.preventDefault(); document.getElementById('age-gate').style.display = 'flex'; }
-function handleRedirect(e) {
-  e.preventDefault();
-  var qs = window.location.search; // e.g. "?campid=123&utm_source=tiktok" or ""
-  window.location.href = '/api/redirect' + qs;
+// ---- CTA & Redirect (hardened for in-app webviews) ----
+// The real offer URL lives ONLY in /api/redirect (server-side) and is reached
+// through the /go interstitial. We forward all incoming params (campid/s1/utm_*).
+function currentQS() { return window.location.search || ''; }
+// Turn every CTA into a REAL link to /go so a tap works even if JS later fails,
+// and append the incoming params so the sub-id passes through.
+function wireLinks() {
+  var qs = currentQS();
+  var links = document.querySelectorAll('[data-go]');
+  for (var i = 0; i < links.length; i++) { links[i].setAttribute('href', '/go' + qs); }
+}
+function showTip(e) { if (e) e.preventDefault(); document.getElementById('age-gate').style.display = 'flex'; }
+function handleRedirect(e) { if (e) e.preventDefault(); window.location.replace('/go' + currentQS()); }
+// ---- In-app browser hint (non-blocking — no forced jump) ----
+function maybeShowWebviewHint() {
+  var ua = navigator.userAgent || navigator.vendor || '';
+  if (!/tiktok|musical_ly|bytedance|FBAN|FBAV|Instagram|Line|Snapchat/i.test(ua)) return;
+  var bar = document.createElement('div');
+  bar.innerHTML = 'For the smoothest experience, tap &#8943; (top corner) and choose &ldquo;Open in browser&rdquo;.';
+  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:400;background:#1d1d1f;color:#fff;font:600 12px/1.4 Inter,-apple-system,sans-serif;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;text-align:center;';
+  bar.onclick = function(){ bar.remove(); };
+  document.body.appendChild(bar);
 }
 document.getElementById('age-gate').addEventListener('click', function(e){ if (e.target === this) this.style.display = 'none'; });
+document.addEventListener('DOMContentLoaded', function(){ wireLinks(); maybeShowWebviewHint(); });
 // ---- Notifications ----
 var names = ["Sarah","Mike","Tyler","Emma","Alex","Jordan","Chris","Mia","Jake","Olivia","Liam","Ava","Noah","Sophia","Ethan"];
 var cities = ["Miami, FL","Austin, TX","Denver, CO","Phoenix, AZ","Charlotte, NC","Seattle, WA","Nashville, TN","Portland, OR","Atlanta, GA","San Diego, CA","Chicago, IL","Dallas, TX","Tampa, FL","Las Vegas, NV","Columbus, OH","Brooklyn, NY","Houston, TX","Raleigh, NC","Minneapolis, MN","Orlando, FL"];

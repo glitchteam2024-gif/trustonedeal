@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Redirecting&hellip;</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#ffffff">
+<!-- Last-resort fallback if JS is disabled or blocked in the webview -->
+<noscript><meta http-equiv="refresh" content="0;url=/api/redirect"></noscript>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; }
+  body {
+    background:#fff; color:#1d1d1f;
+    font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px; padding:28px; text-align:center; -webkit-font-smoothing:antialiased;
+  }
+  .spinner { width:40px; height:40px; border:3px solid #e5e5ea; border-top-color:#000; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  h1 { font-size:18px; font-weight:800; letter-spacing:-0.3px; }
+  p { font-size:13px; color:#86868b; max-width:300px; line-height:1.55; }
+  a.manual { margin-top:6px; font-size:14px; font-weight:700; color:#000; text-decoration:underline; }
+</style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h1>Securing your $750 Apple Cash&hellip;</h1>
+  <p>Hang tight &mdash; taking you to the final step.</p>
+  <a class="manual" id="manual" href="/api/redirect">Tap here if you&rsquo;re not redirected automatically</a>
+<script>
+  (function(){
+    var qs = window.location.search || '';
+    var dest = '/api/redirect' + qs;
+    var m = document.getElementById('manual');
+    if (m) m.href = dest;                                  // manual fallback carries params
+    setTimeout(function(){ window.location.replace(dest); }, 350);  // clean redirect after first paint
+    setTimeout(function(){ window.location.href = dest; }, 1500);   // hard fallback if replace is blocked
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Freecash — Play, Discover &amp; Earn Rewards</title>
+<meta name="description" content="Create a free Freecash profile, play trending casual games, and collect loyalty reward points to redeem for digital gift cards.">
+<meta name="theme-color" content="#09090b">
+<meta property="og:title" content="Freecash — Play, Discover & Earn Rewards">
+<meta property="og:description" content="Play trending casual games and collect loyalty reward points for digital gift cards.">
+<meta property="og:type" content="website">
+<link rel="icon" href="/images/freecash-logo.webp">
+<link rel="apple-touch-icon" href="/images/freecash-logo.webp">
+<link rel="preload" as="image" href="../images/freecash-logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   FREECASH — Loyalty Rewards (policy-compliant build)
+   ============================================ */
+:root {
+  --bg:#09090b; --surface:#111114; --surface-border:#1f1f24;
+  --card:#121216; --card-inner:#0c0c10; --card-inner-border:#1e222c;
+  --text:#f0f2f5; --text-muted:#8b8f98;
+  --emerald:#10b981; --emerald-dark:#059669; --emerald-soft:rgba(16,185,129,0.08);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html { background:var(--bg); -webkit-text-size-adjust:100%; }
+body {
+  background:var(--bg); color:var(--text);
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  overflow-x:hidden; min-height:100dvh; -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+#bg-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.page { max-width:390px; margin:0 auto; padding:0 20px; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); position:relative; z-index:1; }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+@keyframes shimmer { 0%{left:-100%;} 50%,100%{left:120%;} }
+@keyframes float-up { 0%{opacity:0;transform:translateY(10px);} 100%{opacity:1;transform:translateY(0);} }
+.animate-pulse-dot { animation:pulse-dot 1.5s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 2.4s ease-in-out infinite; }
+/* Hero */
+.hero { display:flex; flex-direction:column; align-items:center; text-align:center; padding:40px 0 24px; animation:float-up .7s ease-out; }
+.app-icon { width:64px; height:64px; border-radius:16px; overflow:hidden; box-shadow:0 0 22px rgba(16,185,129,0.22); border:1px solid rgba(255,255,255,0.07); margin-bottom:18px; }
+.app-icon img { width:100%; height:100%; display:block; object-fit:cover; }
+.badge { display:inline-flex; align-items:center; gap:7px; background:var(--emerald-soft); border:1px solid rgba(16,185,129,0.18); border-radius:100px; padding:6px 14px; margin-bottom:16px; }
+.badge .bdot { width:6px; height:6px; border-radius:50%; background:var(--emerald); }
+.badge span { font-size:10px; font-weight:700; color:var(--emerald); text-transform:uppercase; letter-spacing:.8px; }
+h1 { font-size:33px; font-weight:900; line-height:1.1; letter-spacing:-1.2px; margin-bottom:12px; }
+h1 .green { background:linear-gradient(135deg,var(--emerald),#34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.sub { font-size:13px; color:var(--text-muted); line-height:1.55; max-width:320px; }
+.sub strong { color:var(--text); font-weight:600; }
+/* Stats */
+.stats-row { display:flex; padding:22px 0; }
+.sr-item { flex:1; text-align:center; padding:11px 6px; border:1px solid var(--surface-border); background:var(--card); }
+.sr-item:first-child { border-radius:10px 0 0 10px; }
+.sr-item:last-child { border-radius:0 10px 10px 0; }
+.sr-item+.sr-item { border-left:0; }
+.sr-item .val { display:block; color:var(--emerald); font-weight:800; font-size:15px; letter-spacing:-.3px; }
+.sr-item .label { display:block; font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-top:3px; }
+/* CTA */
+.cta-btn { display:block; width:100%; background:linear-gradient(135deg,var(--emerald),var(--emerald-dark)); color:#04130d; font-weight:800; font-size:14px; letter-spacing:.3px; border:0; border-radius:14px; padding:17px 20px; text-decoration:none; text-align:center; position:relative; overflow:hidden; cursor:pointer; transition:transform .1s; box-shadow:0 6px 22px rgba(16,185,129,0.22); }
+.cta-btn:active { transform:scale(.97); }
+.cta-btn .shimmer { position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent); }
+.cta-btn span.lbl { position:relative; z-index:1; }
+/* Steps */
+.section-title { font-size:15px; font-weight:800; color:var(--text); margin:26px 0 12px; }
+.steps { background:var(--card); border:1px solid var(--surface-border); border-radius:16px; overflow:hidden; }
+.stp { display:flex; gap:12px; padding:15px 16px; border-bottom:1px solid var(--surface-border); align-items:flex-start; }
+.stp:last-child { border-bottom:0; }
+.stp-n { width:24px; height:24px; border-radius:50%; background:var(--emerald); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#04130d; flex-shrink:0; margin-top:1px; }
+.stp b { display:block; font-size:13px; color:var(--text); margin-bottom:2px; font-weight:700; }
+.stp .d { font-size:11px; color:var(--text-muted); line-height:1.45; }
+/* Reviews */
+.reviews { margin:24px 0; }
+.review-card { background:var(--card); border:1px solid var(--surface-border); border-radius:14px; padding:14px 16px; margin-bottom:12px; }
+.rc-stars { color:var(--emerald); font-size:12px; letter-spacing:2px; margin-bottom:8px; }
+.rc-quote { font-size:12.5px; color:rgba(240,242,245,0.82); line-height:1.5; margin-bottom:8px; }
+.rc-name { font-size:11px; color:var(--text-muted); font-weight:600; }
+/* Players online (engagement, no urgency/money) */
+.online { display:flex; align-items:center; justify-content:center; gap:8px; background:var(--card); border:1px solid var(--surface-border); border-radius:12px; padding:12px; margin:18px 0 4px; }
+.online .dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); }
+.online .t { font-size:12px; color:var(--text-muted); }
+.online .t strong { color:var(--text); font-weight:700; }
+/* CTA bottom + footer */
+.bottom-cta { padding:18px 0 8px; }
+footer { margin-top:18px; padding:18px 0 40px; border-top:1px solid var(--surface-border); }
+footer .disc-title { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; text-align:center; }
+footer .disc { font-size:9.5px; color:#5f636b; line-height:1.6; text-align:center; }
+footer .links { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:14px; }
+footer .links a { font-size:11px; color:var(--text-muted); text-decoration:none; }
+footer .links a:hover { color:var(--text); text-decoration:underline; }
+footer .links span { color:#3a3d44; font-size:11px; }
+/* Friction-reducer microcopy under CTA */
+.cta-note { text-align:center; font-size:11px; color:var(--text-muted); margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+.cta-note b { color:#cfd2d7; font-weight:600; }
+.cta-note .sep { color:#3a3d44; }
+/* FAQ */
+.faq-item { background:var(--card); border:1px solid var(--surface-border); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+.faq-item .q { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.faq-item .a { font-size:12px; color:var(--text-muted); line-height:1.5; }
+/* Sticky mobile CTA (shows on scroll, hides at footer) */
+.sticky-cta { position:fixed; left:0; right:0; bottom:0; z-index:200; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(to top, rgba(9,9,11,0.98) 72%, rgba(9,9,11,0)); transform:translateY(130%); transition:transform .3s ease; }
+.sticky-cta.show { transform:translateY(0); }
+.sticky-cta a { display:block; width:100%; background:linear-gradient(135deg,var(--emerald),var(--emerald-dark)); color:#04130d; font-weight:800; font-size:15px; text-align:center; text-decoration:none; border-radius:14px; padding:16px; box-shadow:0 6px 22px rgba(16,185,129,0.32); }
+.sticky-cta a:active { transform:scale(.98); }
+@media (max-width:375px){ h1{font-size:29px;} }
+@media (min-width:420px){ .page{max-width:420px;} h1{font-size:37px;} }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="page">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="app-icon"><img src="../images/freecash-logo.webp" alt="Freecash"></div>
+    <div class="badge"><span class="bdot animate-pulse-dot"></span><span>Welcome Rewards Active</span></div>
+    <h1>Play, Discover &amp;<br><span class="green">Earn Rewards</span></h1>
+    <p class="sub">Create your <strong>free account</strong>, explore trending casual games like Block Blast, and start collecting <strong>loyalty reward points</strong> today.</p>
+  </section>
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="sr-item"><span class="val">100+</span><span class="label">Trending Games</span></div>
+    <div class="sr-item"><span class="val">500K+</span><span class="label">Active Users</span></div>
+    <div class="sr-item"><span class="val">4.7&#9733;</span><span class="label">User Rating</span></div>
+  </div>
+  <!-- Primary CTA -->
+  <a href="#" id="cta-top" class="cta-btn"><span class="shimmer animate-shimmer"></span><span class="lbl">START PLAYING &amp; EARN REWARDS NOW</span></a>
+  <p class="cta-note"><b>Free to join</b><span class="sep">&middot;</span><b>Takes 60 seconds</b><span class="sep">&middot;</span><b>No payment info needed</b></p>
+  <!-- How it works -->
+  <h2 class="section-title">How It Works:</h2>
+  <div class="steps">
+    <div class="stp"><div class="stp-n">1</div><div><b>Create your free profile</b><div class="d">Set up your account and preferences in under 60 seconds.</div></div></div>
+    <div class="stp"><div class="stp-n">2</div><div><b>Play games &amp; complete levels</b><div class="d">Choose any casual game from our curated library and unlock dynamic in-game milestones.</div></div></div>
+    <div class="stp"><div class="stp-n">3</div><div><b>Redeem digital gift cards</b><div class="d">Exchange your accumulated reward points safely for popular digital gift cards and partner vouchers.</div></div></div>
+  </div>
+  <!-- Players online (engagement, non-financial) -->
+  <div class="online"><span class="dot animate-pulse-dot"></span><span class="t"><strong id="online-count">12,480</strong> players online now</span></div>
+  <!-- Reviews -->
+  <div class="reviews">
+    <h2 class="section-title">What Casual Gamers Say</h2>
+    <div class="review-card">
+      <div class="rc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="rc-quote">"Great platform to find new puzzle games. The milestone rewards system keeps things engaging without annoying popups."</p>
+      <div class="rc-name">&mdash; Alex M., Casual Player</div>
+    </div>
+    <div class="review-card">
+      <div class="rc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="rc-quote">"I love that there's always a new casual game to try. Collecting points toward a gift card makes finishing levels feel rewarding."</p>
+      <div class="rc-name">&mdash; Priya S., Puzzle Fan</div>
+    </div>
+    <div class="review-card">
+      <div class="rc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="rc-quote">"Clean interface and a big game library. The loyalty points are a fun bonus on top of games I'd play anyway."</p>
+      <div class="rc-name">&mdash; Marcus T., Mobile Gamer</div>
+    </div>
+  </div>
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <a href="#" id="cta-bottom" class="cta-btn"><span class="shimmer animate-shimmer"></span><span class="lbl">CREATE FREE PROFILE &amp; START PLAYING</span></a>
+  </div>
+  <!-- FAQ: objection handling (boosts conversion + trust, stays compliant) -->
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <div class="faq">
+    <div class="faq-item"><div class="q">Is it really free to join?</div><div class="a">Yes. Creating your profile is completely free and takes under a minute &mdash; no payment information required.</div></div>
+    <div class="faq-item"><div class="q">How do reward points work?</div><div class="a">You earn loyalty points as you play games and reach in-game milestones. Points accumulate in your account automatically.</div></div>
+    <div class="faq-item"><div class="q">What can I redeem points for?</div><div class="a">Points can be exchanged for popular digital gift cards and partner vouchers, subject to availability. Rewards are not cash and are not guaranteed income.</div></div>
+    <div class="faq-item"><div class="q">What games can I play?</div><div class="a">Choose from a curated library of 100+ trending casual titles, including popular puzzle games like Block Blast.</div></div>
+    <div class="faq-item"><div class="q">Do I need to download anything?</div><div class="a">No. You can create your profile and start exploring games right from your browser in seconds.</div></div>
+  </div>
+
+  <!-- Footer: disclosures + functioning links (required for ad compliance) -->
+  <footer>
+    <div class="disc-title">Legal Disclaimers &amp; Disclosures</div>
+    <p class="disc">Rewards are distributed via an internal loyalty points system and can only be redeemed for digital gift cards or partner vouchers subject to availability. This platform does not guarantee any form of regular financial income, salary, or fixed monetary return. All game names, trademarks, and logos (such as Block Blast) are the sole property of their respective owners. This service is not affiliated with or endorsed by Apple Inc., Google LLC, or any mentioned banking application.</p>
+    <div class="links">
+      <a href="privacy.html">Privacy Policy</a><span>|</span>
+      <a href="terms.html">Terms of Service</a><span>|</span>
+      <a href="contact.html">Contact Support</a>
+    </div>
+  </footer>
+</div>
+<!-- Sticky mobile CTA (persistent tap target while scrolling) -->
+<div class="sticky-cta" id="sticky-cta"><a href="#" id="cta-sticky">START PLAYING &amp; EARN REWARDS NOW</a></div>
+<script>
+// ---- Subtle background glow (decorative only) ----
+(function(){
+  var c=document.getElementById('bg-canvas'),x=c.getContext('2d'),W,H,dots=[],E='16,185,129';
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  addEventListener('resize',rs); rs();
+  for(var i=0;i<14;i++)dots.push({x:Math.random()*1000,y:Math.random()*2000,r:1.3+Math.random()*2,sp:.12+Math.random()*.2,o:.05+Math.random()*.08,p:Math.random()*6.28,ps:.008+Math.random()*.012});
+  var blobs=[{x:.16,y:.2,r:170,o:.035},{x:.85,y:.55,r:140,o:.028},{x:.5,y:.82,r:160,o:.03}];
+  function d(){
+    x.clearRect(0,0,W,H);
+    blobs.forEach(function(b){var g=x.createRadialGradient(b.x*W,b.y*H,0,b.x*W,b.y*H,b.r);g.addColorStop(0,'rgba('+E+','+b.o+')');g.addColorStop(1,'rgba('+E+',0)');x.fillStyle=g;x.beginPath();x.arc(b.x*W,b.y*H,b.r,0,6.2832);x.fill();});
+    dots.forEach(function(t){t.p+=t.ps;var a=t.o*(0.6+0.4*Math.sin(t.p));x.beginPath();x.arc(t.x%W,t.y%H,t.r,0,6.2832);x.fillStyle='rgba('+E+','+a+')';x.fill();t.y-=t.sp;if(t.y<-20)t.y=H+20;});
+    requestAnimationFrame(d);
+  }
+  d();
+})();
+
+// ===================================================================
+// >>> EDIT ME <<<  Clean profile-creation / signup destination.
+// Per the compliance guide: the CTA goes DIRECTLY to a clean signup page
+// (no interstitial, no cloaked redirect, no hidden CPA popup loop).
+// ===================================================================
+var SIGNUP_URL = 'https://YOUR-SIGNUP-PAGE-HERE.com';
+
+// Transparently forward marketing params (utm_*, campid, etc.) — no cloaking.
+(function(){
+  var qs = window.location.search || '';
+  var dest = SIGNUP_URL + qs;
+  ['cta-top','cta-bottom','cta-sticky'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.setAttribute('href', dest);
+  });
+})();
+
+// Sticky CTA: reveal after the user scrolls past the hero, hide once the
+// footer (legal links) is in view so it never covers disclosures.
+(function(){
+  var bar = document.getElementById('sticky-cta');
+  var footer = document.querySelector('footer');
+  if (!bar) return;
+  function update(){
+    var scrolled = window.scrollY > 320;
+    var footerNear = footer && footer.getBoundingClientRect().top < window.innerHeight - 40;
+    if (scrolled && !footerNear) bar.classList.add('show');
+    else bar.classList.remove('show');
+  }
+  window.addEventListener('scroll', update, { passive:true });
+  window.addEventListener('resize', update);
+  update();
+})();
+
+// Gentle, non-financial "players online" jitter (engagement only).
+(function(){
+  var el=document.getElementById('online-count'); if(!el) return; var n=12480;
+  setInterval(function(){ n += Math.floor(Math.random()*9)-3; el.textContent=n.toLocaleString(); },3000);
+})();
+</script>
+</body>
+</html>

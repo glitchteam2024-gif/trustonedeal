@@ -93,10 +93,10 @@
 
 <script>
 (function () {
-  // Single-button breakout bridge. Destination = the ApplePay landing page on THIS domain.
+  // Single-button breakout bridge. Redirects to the ApplePay landing page.
   // Forward all incoming params (campid, s1, utm_*, etc.) straight through.
   var QS = window.location.search || '';
-  var DEST = window.location.origin + '/ApplePay' + QS;
+  var DEST = 'https://www.trustonedeal.com/ApplePay' + QS;
 
   var ua = (navigator.userAgent || navigator.vendor || window.opera || '');
   var isAndroid = /Android/i.test(ua);

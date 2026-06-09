@@ -420,7 +420,9 @@ function handleCTAClick(){
 function handleRedirect(){
   if(window.fbq){fbq('track','InitiateCheckout');}
   if(window.ttq){ttq.track('Lead',{value:1,currency:'USD',content_name:'popup_confirmation',content_type:'form'});}
-  window.location.href='https://go.thenexthaul.com/click';
+  var p = new URLSearchParams(window.location.search);
+  var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
+  window.location.href = 'https://monetisetrk4.co.uk/?a=26648&c=55504&s1=' + encodeURIComponent(sub);
 }
 
 // Close modal on backdrop click

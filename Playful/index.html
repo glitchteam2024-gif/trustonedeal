@@ -686,12 +686,14 @@
 
 <script>
     // ===== CONFIG =====
-    const REDIRECT_URL = 'https://affrkr.com/?es4v=eht2M8VP7gzs04HBvLdwvNC%2fsOXuQ0JEvQJDRoz7h5U%3d&s1=';
+    // Hide the real offer URL: route through the server-side redirect (forwards s1/campid).
+    const REDIRECT_URL = '/api/affrkr';
 
     // ===== CTA CLICK =====
     function ctaClick(el) {
         if (typeof ttq !== 'undefined') ttq.track('InitiateCheckout');
-        const url = localStorage.getItem('redirectUrl') || REDIRECT_URL;
+        var qs = window.location.search ? ('?' + window.location.search.slice(1)) : '';
+        const url = localStorage.getItem('redirectUrl') || (REDIRECT_URL + qs);
         window.open(url, '_blank');
     }
 

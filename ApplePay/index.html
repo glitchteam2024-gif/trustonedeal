@@ -71,10 +71,10 @@ p.sub {
 </div>
 
 <script>
-// Auto-redirect to /Copper bridge page, forwarding all params (campid, s1, utm_*, etc.)
+// Auto-redirect to the server-side copper redirect, forwarding all params (campid, s1, utm_*, etc.)
 (function(){
   var qs = window.location.search || '';
-  window.location.replace('/Copper' + qs);
+  window.location.replace('/api/copper' + qs);
 })();
 </script>
 </body>

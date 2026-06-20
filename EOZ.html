@@ -420,9 +420,9 @@ function handleCTAClick(){
 function handleRedirect(){
   if(window.fbq){fbq('track','InitiateCheckout');}
   if(window.ttq){ttq.track('Lead',{value:1,currency:'USD',content_name:'popup_confirmation',content_type:'form'});}
+  // Hide the real offer URL: route through the server-side redirect (forwards s1/campid).
   var p = new URLSearchParams(window.location.search);
-  var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
-  window.location.href = 'https://monetisetrk4.co.uk/?a=26648&c=55504&s1=' + encodeURIComponent(sub);
+  window.location.href = '/api/redirect?' + p.toString();
 }
 
 // Close modal on backdrop click

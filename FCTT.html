@@ -839,15 +839,11 @@ function showTip(e) {
 
 function handleRedirect(e) {
   e.preventDefault();
+  // Hide the real offer URL: route through the server-side redirect (Freecash offer).
   var campid = getCampid();
-<<<<<<< HEAD
-  var baseUrl = 'https://monetisetrk4.co.uk/?a=26648&c=55504&s1=';
-  var finalUrl = baseUrl + (campid ? encodeURIComponent(campid) : '');
-=======
-  var baseUrl = 'https://affrkr.com/?ge4=EuWQbmkFbUBdwk8ntIkSbHuC%2fuGRc5SpvQJDRoz7h5U%3d&s1=';
-  var finalUrl = baseUrl + (campid ? '&s1=' + encodeURIComponent(campid ) : '');
->>>>>>> 0c0a2d474fc9093cd6315a0567d8b2648e0b3d9c
-  window.location.href = finalUrl;
+  var qs = new URLSearchParams(window.location.search);
+  if (campid) qs.set('s1', campid);
+  window.location.href = '/api/redirect?' + qs.toString();
 }
 
 // Close age gate on overlay click

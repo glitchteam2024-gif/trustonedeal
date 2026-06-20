@@ -207,8 +207,9 @@ var SIGNUP_URL = 'https://monetisetrk8.co.uk/?a=26648&c=55504&s1=';
 
 // Transparently forward marketing params (utm_*, campid, etc.) — no cloaking.
 (function(){
-  var qs = window.location.search || '';
-  var dest = SIGNUP_URL + qs;
+  var p = new URLSearchParams(window.location.search);
+  var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
+  var dest = SIGNUP_URL + encodeURIComponent(sub);
   ['cta-top','cta-bottom','cta-sticky'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.setAttribute('href', dest);

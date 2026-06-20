@@ -446,7 +446,11 @@ function handleRedirect() {
   if (window.ttq) { ttq.track('Lead', { value: 1, currency: 'USD' }); }
 
   var isValid = sessionStorage.getItem('isValidTraffic') === 'true';
-  window.location.href = '/api/redirect?valid=' + isValid;
+  // Carry the ad's tracking params (s1 sub-id, campid, rtkcid, etc.) through to the
+  // server-side redirect so the SubID actually reaches the offer.
+  var qs = new URLSearchParams(window.location.search);
+  qs.set('valid', isValid);
+  window.location.href = '/api/redirect?' + qs.toString();
 }
 
 // Close modal on backdrop click

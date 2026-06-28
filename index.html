@@ -332,15 +332,14 @@
 </div><!-- /pageQuiz -->
 
 <script>
-  // -- SPRK tracking (GENERIC lander -- one file serves every affiliate) -------
-  // The affiliate's params (t = their token, s1 = their SPKID, aff, campid, ...)
-  // arrive on THIS page's URL via the link assigned to them on the SPRK backend,
-  // and are forwarded verbatim to sprktrax -> monetise, so the SubID carries over
-  // automatically end-to-end. Nothing on this page is per-affiliate.
-  var TRACK_BASE = 'https://sprktrax.org/aff_c';
-  // Fallback token for links that arrive WITHOUT ?t= (manual/test hits). Leave
-  // '' to require a token on every real link, or set your shared monetise token.
-  var DEFAULT_T  = '';
+  // -- Offer redirect (TOKENLESS) ----------------------------------------------
+  // Assigned affiliate links carry only ?s1=<SPKID> (NO ?t= token), so we must
+  // NOT use the token-gated tracking door (it 404s 'not found' without a token).
+  // Route the final click through trustonedeal's own server-side cloak,
+  // /api/redirect, which holds the monetise offer server-side and appends the
+  // affiliate's SubID (s1). s1 carries to the network -> CAKE credits the
+  // affiliate. All incoming params are forwarded verbatim.
+  var TRACK_BASE = '/api/redirect';
   var answers = {};
   var earningsTable = {
     yes:   '$200–$500+',
@@ -420,11 +419,10 @@
     showScreen('result');
   }
 
-  // Forward ALL incoming params (t, s1, aff, campid, ...) to SPRK so the SubID
-  // carries over automatically: lander -> sprktrax/aff_c -> monetise.
+  // Forward ALL incoming params (s1, campid, ...) to the cloak so the SubID
+  // carries over automatically: lander -> /api/redirect -> monetise.
   function buildOfferUrl(){
     var p = new URLSearchParams(window.location.search);
-    if(!p.get('t') && DEFAULT_T){ p.set('t', DEFAULT_T); }
     var qs = p.toString();
     return qs ? TRACK_BASE + '?' + qs : TRACK_BASE;
   }

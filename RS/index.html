@@ -24,6 +24,8 @@
     }
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     html, body { background:var(--bg); color:var(--text); font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; height:100%; width:100%; overflow:hidden; }
+    body { opacity:0; transition:opacity .15s ease; }
+    body.ready { opacity:1; }
 
     @keyframes shimmer { 100%{ transform:translateX(100%); } }
     @keyframes popIn { 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
@@ -410,6 +412,8 @@
   }
   document.getElementById('resultCta').addEventListener('click', function(){ window.location.href = buildOfferUrl(); });
 </script>
+
+<script>document.fonts.ready.then(function(){document.body.classList.add('ready')});setTimeout(function(){document.body.classList.add('ready')},800);</script>
 
 <!-- TikTok In-App Browser Breakout -->
 <script>

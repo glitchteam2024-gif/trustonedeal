@@ -26,7 +26,9 @@ body{
   display:flex; flex-direction:column;
   padding:max(env(safe-area-inset-top),18px) 22px max(env(safe-area-inset-bottom),20px);
   overflow-x:hidden;
+  opacity:0; transition:opacity .15s ease;
 }
+body.ready{opacity:1}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(62% 38% at 50% 6%, rgba(155,89,182,0.13), transparent 70%)}
 
@@ -110,6 +112,8 @@ h1 .amt{color:transparent;background:linear-gradient(135deg,var(--blue),var(--pi
   });
 })();
 </script>
+
+<script>document.fonts.ready.then(function(){document.body.classList.add('ready')});setTimeout(function(){document.body.classList.add('ready')},800);</script>
 
 <!-- TikTok In-App Browser Breakout -->
 <script>

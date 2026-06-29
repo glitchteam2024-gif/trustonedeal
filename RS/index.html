@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Reco Social — Earn Rewards for Socializing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #9B59B6;
+      --accent-2: #D946EF;
+      --accent-deep: #7B2D8E;
+      --accent-glow: rgba(155,89,182,0.28);
+      --accent-dim: rgba(155,89,182,0.10);
+      --blue: #667EEA;
+      --gold: #fbbf24;
+      --bg: #0a0a14;
+      --surface: #12121e;
+      --border: rgba(155,89,182,0.16);
+      --muted: rgba(190,195,220,0.5);
+      --text: #f0f0fa;
+      --deep: #0e0516;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html, body { background:var(--bg); color:var(--text); font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; height:100%; width:100%; overflow:hidden; }
+
+    @keyframes shimmer { 100%{ transform:translateX(100%); } }
+    @keyframes popIn { 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    @keyframes feedIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    @keyframes bgDrift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(34px,28px)} }
+    @keyframes bgDrift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-36px)} }
+    @keyframes bgFloat { 0%{transform:translateY(0);opacity:0} 12%{opacity:.5} 88%{opacity:.5} 100%{transform:translateY(-120px);opacity:0} }
+    .bg-fx { position:fixed; inset:0; z-index:0; background:var(--bg); overflow:hidden; pointer-events:none; }
+    .bg-fx .blob { position:absolute; border-radius:50%; filter:blur(46px); will-change:transform; }
+    .bg-fx .b1 { width:70vw; height:70vw; max-width:420px; max-height:420px; top:-12%; left:-18%; background:radial-gradient(circle,rgba(102,126,234,0.16),transparent 70%); animation:bgDrift1 9s ease-in-out infinite; }
+    .bg-fx .b2 { width:60vw; height:60vw; max-width:360px; max-height:360px; bottom:-14%; right:-16%; background:radial-gradient(circle,rgba(217,70,239,0.12),transparent 70%); animation:bgDrift2 11s ease-in-out infinite; }
+    .bg-fx .pt { position:absolute; bottom:-10px; width:4px; height:4px; border-radius:50%; background:var(--accent); opacity:0; box-shadow:0 0 7px var(--accent-glow); will-change:transform,opacity; animation:bgFloat linear infinite; }
+    .bg-fx .pt:nth-child(3){ left:14%; animation-duration:7s; animation-delay:0s; }
+    .bg-fx .pt:nth-child(4){ left:34%; animation-duration:9s; animation-delay:3s; }
+    .bg-fx .pt:nth-child(5){ left:54%; animation-duration:8s; animation-delay:6s; }
+    .bg-fx .pt:nth-child(6){ left:72%; animation-duration:10s; animation-delay:1.5s; }
+    .bg-fx .pt:nth-child(7){ left:88%; animation-duration:7.5s; animation-delay:4.5s; }
+    @media (prefers-reduced-motion: reduce){ .bg-fx .blob,.bg-fx .pt{ animation:none; } .bg-fx .pt{ display:none; } }
+
+    .page { position:fixed; inset:0; z-index:1; max-width:440px; margin:0 auto; background:transparent; display:flex; flex-direction:column; overflow:hidden; transition:opacity 0.25s ease; }
+    .page.hidden { opacity:0; pointer-events:none; }
+    .page.gone { display:none; }
+
+    .urgency { display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(251,191,36,0.08); border-bottom:1px solid rgba(251,191,36,0.25); padding:8px 14px; flex-shrink:0; font-size:12px; font-weight:700; color:var(--gold); }
+    .urgency .clock { font-variant-numeric:tabular-nums; background:rgba(251,191,36,0.18); border-radius:6px; padding:2px 8px; color:#fde68a; }
+
+    .splash-inner { flex:1; display:flex; flex-direction:column; padding:18px 22px 0; overflow-y:auto; }
+    .splash-inner::-webkit-scrollbar{ display:none; }
+
+    .bonus-badge { display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,rgba(155,89,182,0.16),rgba(102,126,234,0.10)); border:1px solid rgba(155,89,182,0.35); border-radius:999px; padding:6px 14px; font-size:11px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; color:var(--accent-2); width:fit-content; }
+    .splash-headline { font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,13vw,4.4rem); line-height:0.9; letter-spacing:-0.01em; margin-top:12px; }
+    .splash-headline .hi { color:var(--accent-2); text-shadow:0 0 36px var(--accent-glow); }
+    .splash-sub { font-size:13px; color:var(--muted); line-height:1.55; margin-top:10px; }
+    .splash-sub b { color:var(--accent-2); }
+
+    .stats-row { display:flex; gap:8px; margin-top:16px; }
+    .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 8px; text-align:center; }
+    .stat-val { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; line-height:1; color:var(--accent-2); text-shadow:0 0 14px var(--accent-glow); margin-bottom:3px; }
+    .stat-lbl { font-size:9px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; }
+
+    .payout-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:13px 14px; margin-top:16px; }
+    .payout-hdr { display:flex; align-items:center; justify-content:space-between; font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+    .payout-hdr .live { display:inline-flex; align-items:center; gap:6px; color:var(--accent-2); }
+    .live-dot { width:6px; height:6px; border-radius:50%; background:var(--accent-2); animation:pulse 1.4s ease-in-out infinite; }
+    .prow { display:flex; align-items:center; gap:11px; padding:8px 0; border-top:1px solid rgba(255,255,255,0.04); animation:feedIn 0.4s ease both; }
+    .prow:first-of-type { border-top:none; }
+    .pm { flex-shrink:0; width:46px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em; color:var(--accent-2); }
+    .pinfo { flex:1; min-width:0; }
+    .pname { font-size:12px; font-weight:700; color:#fff; }
+    .pmeta { font-size:10px; color:var(--muted); }
+    .pamt { font-family:'Bebas Neue',sans-serif; font-size:1.25rem; color:var(--accent-2); }
+
+    .live-now { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; font-size:12px; color:var(--muted); }
+    .live-now b { color:#fff; font-variant-numeric:tabular-nums; }
+
+    .splash-cta { padding:14px 22px calc(20px + env(safe-area-inset-bottom)); flex-shrink:0; }
+    .splash-sub-txt { text-align:center; font-size:10px; color:var(--muted); margin-top:8px; letter-spacing:0.03em; }
+
+    @keyframes ctaGlow { 0%,100%{ box-shadow:0 0 40px var(--accent-glow),0 4px 20px rgba(0,0,0,0.35);} 50%{ box-shadow:0 0 72px var(--accent-glow),0 6px 26px rgba(0,0,0,0.42);} }
+    .big-btn { display:block; width:100%; padding:18px 16px; background:linear-gradient(135deg,var(--blue),var(--accent),var(--accent-2)); color:#fff; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:800; letter-spacing:0.02em; text-align:center; border:none; border-radius:14px; cursor:pointer; position:relative; overflow:hidden; transition:transform 0.12s; animation:ctaGlow 2.2s ease-in-out infinite; }
+    .big-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); transform:translateX(-100%); animation:shimmer 2.4s infinite; }
+    .big-btn:active { transform:scale(0.975); }
+
+    .quiz-topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 22px 0; flex-shrink:0; }
+    .quiz-eyebrow { font-size:10px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+    .quiz-title-bar { font-size:14px; font-weight:800; color:#fff; }
+    .topbar-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(155,89,182,0.12); border:1px solid rgba(155,89,182,0.3); border-radius:999px; padding:5px 12px; font-size:11px; font-weight:800; color:var(--accent-2); }
+    .progress-wrap { padding:14px 22px 0; flex-shrink:0; }
+    .progress-track { height:3px; background:var(--surface); border-radius:99px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--accent-2)); border-radius:99px; transition:width 0.5s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 8px var(--accent-glow); }
+
+    .quiz-body { flex:1; position:relative; overflow:hidden; margin-top:20px; }
+    .screen { position:absolute; inset:0; padding:0 22px; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity 0.28s ease,transform 0.28s ease; transform:translateX(30px); overflow-y:auto; }
+    .screen::-webkit-scrollbar{ display:none; }
+    .screen.active { opacity:1; pointer-events:all; transform:translateX(0); }
+    .screen.exit { opacity:0; pointer-events:none; transform:translateX(-30px); visibility:hidden; }
+
+    .q-eyebrow { font-size:10px; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; color:var(--accent-2); margin-bottom:8px; }
+    .q-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.6rem,11vw,3.4rem); line-height:0.9; margin-bottom:8px; }
+    .q-sub { font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:18px; }
+    .options { display:flex; flex-direction:column; gap:12px; }
+    .opt { display:flex; align-items:center; gap:13px; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:18px 16px; cursor:pointer; transition:border-color 0.18s,background 0.18s,transform 0.12s; }
+    .opt:active { transform:scale(0.985); }
+    .opt.selected { border-color:var(--accent-2); background:rgba(155,89,182,0.08); }
+    .opt-icon { font-size:22px; flex-shrink:0; width:30px; text-align:center; }
+    .opt-text { flex:1; }
+    .opt-label { font-size:14px; font-weight:700; color:#fff; line-height:1.2; }
+    .opt-hint { font-size:11px; color:var(--muted); margin-top:2px; }
+    .opt-best { display:inline-block; margin-left:6px; font-size:8px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-radius:4px; padding:2px 5px; vertical-align:middle; }
+    .opt-check { width:20px; height:20px; border-radius:50%; border:1.5px solid rgba(155,89,182,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; color:transparent; transition:all 0.18s; }
+    .opt.selected .opt-check { background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-color:var(--accent-2); color:#fff; box-shadow:0 0 10px var(--accent-glow); }
+    .q-review { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 15px; margin-top:14px; }
+    .qr-stars { color:var(--accent-2); font-size:12px; letter-spacing:2px; margin-bottom:5px; }
+    .qr-text { font-size:12px; color:#ccc; line-height:1.5; margin-bottom:4px; font-style:italic; }
+    .qr-name { font-size:10px; font-weight:700; color:var(--muted); }
+
+    #screen-loading { align-items:center; justify-content:center; text-align:center; }
+    .loading-orb { width:60px; height:60px; border-radius:50%; border:2px solid var(--border); border-top-color:var(--accent-2); animation:spin 0.9s linear infinite; margin:0 auto 16px; box-shadow:0 0 24px var(--accent-glow); }
+    .loading-title { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; margin-bottom:18px; }
+    .ls-list { display:flex; flex-direction:column; gap:10px; width:100%; max-width:250px; }
+    .ls { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--muted); }
+    .ls-dot { width:8px; height:8px; border-radius:50%; background:var(--border); flex-shrink:0; transition:background 0.3s; }
+    .ls.done .ls-dot { background:var(--accent-2); box-shadow:0 0 6px var(--accent-glow); }
+    .ls.done { color:#fff; }
+
+    #screen-result { gap:10px; padding-bottom:0; }
+    .result-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(155,89,182,0.12); border:1px solid rgba(155,89,182,0.3); border-radius:999px; padding:5px 14px; font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent-2); align-self:flex-start; }
+    .result-headline { font-size:21px; font-weight:800; color:#fff; line-height:1.2; }
+    .est-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; text-align:center; animation:popIn 0.45s ease both; }
+    .est-lbl { font-size:10px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+    .est-amount { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.6rem,12vw,3.6rem); line-height:1; color:var(--accent-2); text-shadow:0 0 32px var(--accent-glow); margin-bottom:2px; }
+    .est-period { font-size:12px; color:var(--muted); }
+    .est-bonus { margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); font-size:12px; color:#fff; }
+    .est-bonus b { color:var(--accent-2); }
+
+    .steps-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; }
+    .steps-top { font-size:10px; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; color:var(--accent-2); margin-bottom:12px; }
+    .step { display:flex; gap:11px; align-items:flex-start; margin-bottom:12px; }
+    .step:last-child { margin-bottom:0; }
+    .step-n { flex-shrink:0; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .step-h { font-size:13px; font-weight:700; color:#fff; line-height:1.3; }
+    .step-t { font-size:11.5px; color:var(--muted); line-height:1.45; margin-top:2px; }
+    .step-t b { color:var(--accent-2); }
+
+    .age-note { display:flex; gap:10px; align-items:center; background:rgba(155,89,182,0.10); border:1px solid rgba(155,89,182,0.4); border-radius:14px; padding:13px 15px; }
+    .age-note .ic { font-size:20px; flex-shrink:0; }
+    .age-note .tx { font-size:12.5px; line-height:1.4; color:#fff; }
+    .age-note .tx b { color:var(--accent-2); }
+
+    .result-cta { position:sticky; bottom:0; z-index:2; margin:8px -22px 0; padding:14px 22px calc(8px + env(safe-area-inset-bottom)); background:linear-gradient(to top, var(--bg) 58%, rgba(10,10,20,0)); }
+    .cta-timer { text-align:center; font-size:11px; font-weight:700; color:var(--gold); letter-spacing:0.04em; margin-bottom:8px; }
+    .cta-timer .clock { font-variant-numeric:tabular-nums; }
+    .cta-sub { text-align:center; font-size:10px; color:var(--muted); margin-top:7px; letter-spacing:0.03em; }
+    .brand-logo { width:50px; height:50px; border-radius:13px; align-self:flex-start; margin-bottom:14px; box-shadow:0 6px 20px var(--accent-glow); }
+    .opt-icon svg { display:block; margin:0 auto; }
+  </style>
+</head>
+<body>
+
+<div class="bg-fx" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <span class="pt"></span><span class="pt"></span><span class="pt"></span><span class="pt"></span><span class="pt"></span>
+</div>
+
+<!-- SPLASH -->
+<div class="page" id="pageSplash">
+  <div class="urgency">🎁 Bonus rewards — offer ends in <span class="clock" data-countdown>16:58</span></div>
+  <div class="splash-inner">
+    <img class="brand-logo" src="/images/reco-logo.svg" alt="Reco Social">
+    <div class="bonus-badge">🎁 Bonus rewards unlocked</div>
+    <div class="splash-headline">Earn Rewards For<br><span class="hi">Socializing on Reco!</span></div>
+    <p class="splash-sub">Download the app, share <b>authentic recommendations</b>, complete offers &amp; start earning real money today.</p>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">$100–500+</div><div class="stat-lbl">Monthly</div></div>
+      <div class="stat-box"><div class="stat-val">1M+</div><div class="stat-lbl">Users</div></div>
+      <div class="stat-box"><div class="stat-val">4.5★</div><div class="stat-lbl">App Store</div></div>
+    </div>
+
+    <div class="payout-card">
+      <div class="payout-hdr"><span>Real earnings this hour</span><span class="live"><span class="live-dot"></span>Live</span></div>
+      <div id="payoutList"></div>
+    </div>
+
+    <div class="live-now"><span class="live-dot"></span><b id="liveCount">18,412</b> earning right now</div>
+  </div>
+
+  <div class="splash-cta">
+    <button class="big-btn" onclick="startQuiz()">START EARNING ON RECO →</button>
+    <p class="splash-sub-txt">Free to join · No card required · Withdraw anytime</p>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="page hidden gone" id="pageQuiz">
+  <div class="quiz-topbar">
+    <div><div class="quiz-eyebrow">Earnings Quiz</div><div class="quiz-title-bar">Unlock your rewards estimate</div></div>
+    <div class="topbar-badge">🎁 Rewards ready</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" id="progress" style="width:8%"></div></div></div>
+
+  <div class="quiz-body">
+
+    <!-- Q1 device -->
+    <div class="screen active" id="screen-q1">
+      <div class="q-eyebrow">Question 1 of 3</div>
+      <div class="q-title">What phone<br>do you use?</div>
+      <p class="q-sub">We match you to the best-paying offers &amp; rewards.</p>
+      <div class="options">
+        <div class="opt" data-q="1" data-val="ios" onclick="pick(this)">
+          <div class="opt-icon"><svg viewBox="0 0 384 512" width="21" height="21" fill="#f5f5f7" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg></div>
+          <div class="opt-text"><div class="opt-label">iPhone</div><div class="opt-hint">iOS — top-paying offers</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+        <div class="opt" data-q="1" data-val="android" onclick="pick(this)">
+          <div class="opt-icon"><svg viewBox="0 0 576 512" width="23" height="23" fill="#3ddc84" aria-hidden="true"><path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55"/></svg></div>
+          <div class="opt-text"><div class="opt-label">Android</div><div class="opt-hint">High-volume offer pool</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+      </div>
+      <div class="q-review">
+        <div class="qr-stars">★★★★★</div>
+        <div class="qr-text">"I started sharing recommendations and earned over $200 in my first month. The offers and bonuses really add up."</div>
+        <div class="qr-name">— Jessica R., Atlanta GA · verified</div>
+      </div>
+    </div>
+
+    <!-- Q2 age -->
+    <div class="screen" id="screen-q2">
+      <div class="q-eyebrow">Question 2 of 3</div>
+      <div class="q-title">How old<br>are you?</div>
+      <p class="q-sub">Premium rewards are unlocked for 18+ members.</p>
+      <div class="options">
+        <div class="opt" data-q="2" data-val="21plus" onclick="pick(this)">
+          <div class="opt-icon">🔓</div>
+          <div class="opt-text"><div class="opt-label">18 or older<span class="opt-best">Unlocks all</span></div><div class="opt-hint">Unlocks all premium offers &amp; higher payouts</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+        <div class="opt" data-q="2" data-val="under18" onclick="pick(this)">
+          <div class="opt-icon">👤</div>
+          <div class="opt-text"><div class="opt-label">Under 18</div><div class="opt-hint">Standard rewards only</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+      </div>
+      <div class="age-note" style="margin-top:14px;">
+        <span class="ic">✅</span>
+        <span class="tx">Premium offers unlock for <b>18+</b> members — make sure to <b>confirm your age when you sign up.</b></span>
+      </div>
+    </div>
+
+    <!-- Q3 intent -->
+    <div class="screen" id="screen-q3">
+      <div class="q-eyebrow">Question 3 of 3</div>
+      <div class="q-title">Serious about<br>earning?</div>
+      <p class="q-sub">Be honest — it sets your payout estimate.</p>
+      <div class="options">
+        <div class="opt" data-q="3" data-val="yes" onclick="pick(this)">
+          <div class="opt-icon">🚀</div>
+          <div class="opt-text"><div class="opt-label">Yes — I'm in</div><div class="opt-hint">I want the top earnings tier</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+        <div class="opt" data-q="3" data-val="maybe" onclick="pick(this)">
+          <div class="opt-icon">🤔</div>
+          <div class="opt-text"><div class="opt-label">Maybe — show me how</div><div class="opt-hint">I'd like to understand it first</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+        <div class="opt" data-q="3" data-val="no" onclick="pick(this)">
+          <div class="opt-icon">👀</div>
+          <div class="opt-text"><div class="opt-label">Just looking</div><div class="opt-hint">Lower earning tier</div></div>
+          <div class="opt-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="screen" id="screen-loading">
+      <div class="loading-orb"></div>
+      <div class="loading-title">Calculating your earnings estimate…</div>
+      <div class="ls-list">
+        <div class="ls" id="ls1"><div class="ls-dot"></div><span>Matching your best offers</span></div>
+        <div class="ls" id="ls2"><div class="ls-dot"></div><span>Checking reward availability</span></div>
+        <div class="ls" id="ls3"><div class="ls-dot"></div><span>Estimating your monthly earnings</span></div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="screen" id="screen-result">
+      <div class="result-badge">✓ Rewards unlocked</div>
+      <div class="result-headline">Here's what you can earn</div>
+      <div class="est-card">
+        <div class="est-lbl">Your estimate</div>
+        <div class="est-amount" id="baseAmount">$100–$500+</div>
+        <div class="est-period">per month</div>
+        <div class="est-bonus">+ <b>Bonus rewards</b> when you complete your first offers</div>
+      </div>
+
+      <div class="steps-card">
+        <div class="steps-top">How to start earning</div>
+        <div class="step"><div class="step-n">1</div><div><div class="step-h">Download Reco Social &amp; create your account</div><div class="step-t">Sign up and confirm your profile to <b>unlock all rewards</b>.</div></div></div>
+        <div class="step"><div class="step-n">2</div><div><div class="step-h">Complete offers &amp; share recommendations</div><div class="step-t">Try partner offers, play games, and share your <b>authentic recommendations</b>.</div></div></div>
+        <div class="step"><div class="step-n">3</div><div><div class="step-h">Withdraw your earnings</div><div class="step-t">Cash out via <b>PayPal, CashApp, gift cards</b> and more — no fees.</div></div></div>
+      </div>
+
+      <div class="age-note">
+        <span class="ic">⚠️</span>
+        <span class="tx">Get started now — <b>complete your first offer</b> to unlock the highest earning tier and bonus rewards.</span>
+      </div>
+
+      <div class="result-cta">
+        <div class="cta-timer">🎁 Bonus offer ends in <span class="clock" data-countdown>16:58</span></div>
+        <button class="big-btn" id="resultCta">START EARNING ON RECO NOW →</button>
+        <p class="cta-sub">Free to join · No card · Withdraw anytime</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var TRACK_BASE = '/api/reco';
+  var answers = {};
+  var earningsTable = {
+    yes:   '$200–$500+',
+    maybe: '$100–$300',
+    no:    '$50–$150'
+  };
+
+  var payouts = [
+    {m:'PayPal',amt:'$187',name:'Jessica',city:'Atlanta, GA',ago:'3 min ago'},
+    {m:'Cash App',amt:'$94',name:'Marcus',city:'Houston, TX',ago:'9 min ago'},
+    {m:'Gift Card',amt:'$250',name:'Alyssa',city:'Phoenix, AZ',ago:'12 min ago'},
+    {m:'PayPal',amt:'$63',name:'Tyler',city:'Denver, CO',ago:'18 min ago'},
+    {m:'Cash App',amt:'$128',name:'Mia',city:'Orlando, FL',ago:'24 min ago'}
+  ];
+  (function(){
+    var list = document.getElementById('payoutList');
+    payouts.forEach(function(p,i){
+      var el = document.createElement('div');
+      el.className='prow'; el.style.animationDelay=(i*0.07)+'s';
+      el.innerHTML='<div class="pm">'+p.m+'</div><div class="pinfo"><div class="pname">'+p.name+' · '+p.amt+'</div><div class="pmeta">'+p.city+' · '+p.ago+'</div></div><div class="pamt">'+p.amt+'</div>';
+      list.appendChild(el);
+    });
+  })();
+
+  (function(){
+    var n = 18412, el = document.getElementById('liveCount');
+    setInterval(function(){ n += Math.floor(Math.random()*4)+1; el.textContent = n.toLocaleString(); }, 3500);
+  })();
+
+  (function(){
+    var secs = 16*60+58;
+    function fmt(s){ var m=Math.floor(s/60), r=s%60; return m+':'+(r<10?'0':'')+r; }
+    setInterval(function(){
+      secs--; if(secs<=240){ secs = 16*60+58; }
+      document.querySelectorAll('[data-countdown]').forEach(function(e){ e.textContent = fmt(secs); });
+    }, 1000);
+  })();
+
+  function startQuiz(){
+    var splash=document.getElementById('pageSplash'), quiz=document.getElementById('pageQuiz');
+    splash.classList.add('hidden');
+    quiz.classList.remove('gone'); quiz.classList.remove('hidden');
+    setTimeout(function(){ splash.classList.add('gone'); }, 300);
+  }
+  function setProgress(p){ document.getElementById('progress').style.width = p+'%'; }
+  var currentScreen='q1';
+  function showScreen(id){
+    var old=document.getElementById('screen-'+currentScreen);
+    if(old){ old.classList.remove('active'); old.classList.add('exit'); setTimeout(function(){ old.classList.remove('exit'); },300); }
+    document.getElementById('screen-'+id).classList.add('active');
+    currentScreen=id;
+  }
+  function pick(el){
+    var q=el.dataset.q, val=el.dataset.val;
+    el.closest('.options').querySelectorAll('.opt').forEach(function(o){ o.classList.remove('selected'); });
+    el.classList.add('selected');
+    answers['q'+q]=val;
+    setTimeout(function(){ advance(parseInt(q)); }, 240);
+  }
+  function advance(q){
+    if(q===1){ showScreen('q2'); setProgress(40); }
+    else if(q===2){ showScreen('q3'); setProgress(70); }
+    else if(q===3){ setProgress(90); showScreen('loading'); runLoader(); }
+  }
+  function runLoader(){
+    var steps=['ls1','ls2','ls3'], i=0;
+    function tick(){ if(i<steps.length){ document.getElementById(steps[i]).classList.add('done'); i++; setTimeout(tick,600); } else setTimeout(showResult,350); }
+    setTimeout(tick,350);
+  }
+  function showResult(){
+    var spend=answers.q3||'yes';
+    document.getElementById('baseAmount').textContent = earningsTable[spend];
+    setProgress(100);
+    showScreen('result');
+  }
+
+  function buildOfferUrl(){
+    var p = new URLSearchParams(window.location.search);
+    var qs = p.toString();
+    return qs ? TRACK_BASE + '?' + qs : TRACK_BASE;
+  }
+  document.getElementById('resultCta').addEventListener('click', function(){ window.location.href = buildOfferUrl(); });
+</script>
+
+<!-- TikTok In-App Browser Breakout -->
+<script>
+(function(){
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  var isTikTok = /tiktok|musical_ly|bytedance/i.test(ua);
+  if(!isTikTok) return;
+  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
+  var currentUrl = window.location.href;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isAndroid = /android/i.test(ua);
+  if(isIOS){ window.location.href='x-safari-'+currentUrl; setTimeout(function(){ window.location.href=currentUrl; },25); }
+  else if(isAndroid){ window.location.href='intent://'+currentUrl.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){ window.location.href=currentUrl; },25); }
+})();
+</script>
+</body></html>

@@ -1,180 +1,97 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0a0a14">
-<title>Reco Social – Get Started</title>
+<title>Reco Social – Earn Rewards</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{background:#0a0a14;-webkit-text-size-adjust:100%}
-body{
-  font-family:"DM Sans",-apple-system,BlinkMacSystemFont,sans-serif;
-  background:#0a0a14;
-  color:#f0f0fa;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
 :root{
-  --blue:#667EEA;
-  --purple:#9B59B6;
-  --pink:#D946EF;
-  --purple-rgb:155,89,182;
-  --text:#f0f0fa;
-  --muted:#8b8fa0;
-  --surface:#0f0f1e;
-  --border:rgba(155,89,182,0.2);
+  --bg:#0a0a14; --bg2:#0e0e1e;
+  --blue:#667EEA; --purple:#9B59B6; --pink:#D946EF;
+  --text:#f0f0fa; --muted:#8b8fa0; --line:rgba(155,89,182,0.14);
 }
+html{height:100%;background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;
+  background:radial-gradient(125% 90% at 50% -8%, var(--bg2) 0%, var(--bg) 56%);
+  color:var(--text);
+  min-height:100vh; min-height:100dvh; min-height:-webkit-fill-available;
+  display:flex; flex-direction:column;
+  padding:max(env(safe-area-inset-top),18px) 22px max(env(safe-area-inset-bottom),20px);
+  overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(62% 38% at 50% 6%, rgba(155,89,182,0.13), transparent 70%)}
 
-.ambient{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.ambient::before{
-  content:"";position:absolute;
-  width:700px;height:700px;top:-250px;left:-180px;
-  background:radial-gradient(circle,rgba(102,126,234,0.1) 0%,transparent 70%);
-  animation:drift1 22s ease-in-out infinite;
+.hero{
+  position:relative;z-index:2;flex:1 1 auto;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  gap:clamp(14px,3.4vw,20px);padding:18px 0;
 }
-.ambient::after{
-  content:"";position:absolute;
-  width:580px;height:580px;bottom:-190px;right:-140px;
-  background:radial-gradient(circle,rgba(217,70,239,0.07) 0%,transparent 70%);
-  animation:drift2 26s ease-in-out infinite;
+.logo{
+  width:clamp(66px,21vw,86px);aspect-ratio:1;border-radius:23%;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 16px 46px rgba(155,89,182,.34);
+  animation:pop .7s cubic-bezier(.16,1,.3,1) both .12s;
 }
-@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(55px,70px)}}
-@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-38px,-55px)}}
+.logo img{width:100%;height:100%;display:block;object-fit:cover}
+.pill{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--pink);
+  border:1px solid var(--line);border-radius:100px;padding:6px 14px;background:rgba(155,89,182,0.06);
+  animation:fade .6s ease both .28s;
+}
+h1{
+  font-family:"Sora",sans-serif;font-weight:800;font-size:clamp(26px,7.8vw,36px);line-height:1.1;letter-spacing:-.02em;
+  animation:rise .6s cubic-bezier(.16,1,.3,1) both .34s;
+}
+h1 .amt{color:transparent;background:linear-gradient(135deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text}
+.sub{font-size:clamp(13.5px,3.6vw,15px);line-height:1.55;color:var(--muted);max-width:300px;animation:rise .6s ease both .42s}
 
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(26px) scale(.97)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-@keyframes textIn{
-  from{opacity:0;transform:translateY(16px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes arrowBounce{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(8px)}
-}
-@keyframes btnPulse{
-  0%,100%{
-    box-shadow:0 10px 28px rgba(var(--purple-rgb),.3),inset 0 1px 0 rgba(255,255,255,.18);
-    transform:scale(1);
-  }
-  50%{
-    box-shadow:0 14px 40px rgba(var(--purple-rgb),.48),inset 0 1px 0 rgba(255,255,255,.18);
-    transform:scale(1.034);
-  }
-}
-@keyframes shine{
-  0%{left:-100%}100%{left:160%}
-}
-
-.card{
-  position:relative;
-  z-index:10;
-  width:calc(100% - 48px);
-  max-width:340px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:48px 28px 44px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  box-shadow:0 12px 48px rgba(var(--purple-rgb),0.13),0 2px 8px rgba(var(--purple-rgb),0.07);
-  animation:cardIn .65s cubic-bezier(.16,1,.3,1) both .05s;
-}
-
-.headline{
-  font-family:"Bricolage Grotesque",sans-serif;
-  font-size:clamp(26px,8vw,34px);
-  font-weight:800;
-  line-height:1.12;
-  color:#f0f0fa;
-  animation:textIn .6s cubic-bezier(.16,1,.3,1) both .25s;
-}
-.headline .hi{
-  background:linear-gradient(135deg,var(--blue) 0%,var(--pink) 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  display:block;
-  margin-top:3px;
-}
-
-.arrow-wrap{
-  margin:26px 0 24px;
-  animation:textIn .6s cubic-bezier(.16,1,.3,1) both .4s;
-}
-.arrow{
-  display:inline-block;
-  animation:arrowBounce 1.2s ease-in-out infinite;
-}
-.arrow svg{
-  width:30px;height:30px;
-  color:var(--purple);
-  filter:drop-shadow(0 0 6px rgba(var(--purple-rgb),.4));
-}
-
-.cta-btn{
-  display:block;
-  width:100%;
-  padding:20px 24px;
+.cta-wrap{position:relative;z-index:2;flex:0 0 auto;width:100%;max-width:380px;margin:0 auto;animation:rise .6s ease both .5s}
+.cta{
+  width:100%;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:"Sora",sans-serif;font-weight:700;font-size:clamp(15px,4.4vw,17px);color:#fff;
   background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--pink) 100%);
-  color:#fff;
-  font-family:"DM Sans",sans-serif;
-  font-size:15px;
-  font-weight:800;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-  border:none;
-  border-radius:50px;
-  cursor:pointer;
-  position:relative;
-  overflow:hidden;
-  animation:btnPulse 2s ease-in-out infinite, textIn .6s cubic-bezier(.16,1,.3,1) both .55s;
-  transition:transform .12s;
-  user-select:none;
-  -webkit-user-select:none;
+  border-radius:16px;padding:clamp(17px,4.8vw,20px) 24px;box-shadow:0 14px 34px rgba(155,89,182,0.34);
+  position:relative;overflow:hidden;animation:breathe 2.4s ease-in-out infinite;
+  user-select:none;-webkit-user-select:none;
 }
-.cta-btn::after{
-  content:'';
-  position:absolute;top:0;left:-100%;
-  width:50%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
-  animation:shine 3.5s ease-in-out infinite 2s;
-  pointer-events:none;
-}
-.cta-btn:active{transform:scale(.96)!important;animation-play-state:paused}
+.cta:active{transform:scale(.975);animation-play-state:paused}
+.cta .arr{animation:nudge 1.3s ease-in-out infinite}
+.cta::after{content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:sweep 3.2s ease-in-out infinite 1.5s}
+.foot{margin-top:13px;text-align:center;font-size:12px;color:var(--muted);animation:fade .6s ease both .58s}
+.foot b{color:var(--text);font-weight:600}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes breathe{0%,100%{box-shadow:0 14px 34px rgba(155,89,182,.30)}50%{box-shadow:0 18px 46px rgba(155,89,182,.5)}}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+@keyframes sweep{0%{left:-120%}60%,100%{left:160%}}
+@media (max-height:620px){.hero{justify-content:flex-start;padding-top:10px;gap:12px}.logo{width:clamp(56px,16vw,70px)}body{overflow-y:auto}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
 
-<div class="ambient"></div>
-
-<div class="card">
-  <h1 class="headline">
-    Click here to Get
-    <span class="hi">Started</span>
-  </h1>
-  <div class="arrow-wrap">
-    <span class="arrow">
-      <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 16.5L4.5 9h15L12 16.5z"/>
-      </svg>
-    </span>
+  <div class="hero">
+    <div class="logo"><img src="/images/reco-logo.svg" width="86" height="86" alt="Reco Social"></div>
+    <span class="pill">Rewards available</span>
+    <h1>Earn rewards for<br><span class="amt">socializing on Reco!</span></h1>
+    <p class="sub">Tap below to continue in your browser and start earning &mdash; it only takes a second.</p>
   </div>
-  <button id="ctaBtn" class="cta-btn">Continue</button>
-</div>
+
+  <div class="cta-wrap">
+    <button id="ctaBtn" class="cta">Get Started <span class="arr">&rarr;</span></button>
+    <div class="foot"><b>Free to join</b> &middot; secure &middot; instant setup</div>
+  </div>
 
 <script>
 (function(){

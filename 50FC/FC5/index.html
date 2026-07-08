@@ -183,20 +183,15 @@ body{
 </div>
 
 <script>
-// === CONTINUE BUTTON — keeps the affiliate's SPK (s1, set on the ad link by the launcher)
-// UNTOUCHED for per-creative tracking, adds this affiliate's permanent publisher_code as s2
-// (the per-affiliate FreeCash source), and forwards to the trustonedeal lander -> SPRK door
-// -> FreeCash. Nothing is cut. (slot 5) ===
+// === CONTINUE — forward the affiliate's SPK (s1, set by the launcher) UNTOUCHED to the trustonedeal
+// lander, which forwards to the SPRK door. The door derives the affiliate id (s4) from the SPK's owner
+// SERVER-SIDE, so nothing here is per-affiliate and nothing can leak across affiliates. ===
 (function(){
   var NEXT = 'https://www.trustonedeal.com/';
-  var PUB  = 'p6d97b1';
-
   function buildUrl(){
-    var p = new URLSearchParams(window.location.search);
-    if (!p.get('s4')) p.set('s4', PUB); // affiliate id -> s4 (FreeCash reads sub4); s1 stays the SPK
+    var p = new URLSearchParams(window.location.search); // forward everything incl s1=SPK; never touched
     return NEXT + (p.toString() ? '?' + p.toString() : '');
   }
-
   document.getElementById('ctaBtn').addEventListener('click', function(){
     var w = window.open(buildUrl(), '_blank', 'noopener,noreferrer');
     if(!w || w.closed || typeof w.closed === 'undefined'){

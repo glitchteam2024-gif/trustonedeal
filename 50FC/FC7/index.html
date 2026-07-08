@@ -183,17 +183,18 @@ body{
 </div>
 
 <script>
-// === CONTINUE BUTTON — routes through the SPRK tracking door (logs the click + mints the
-// attribution click_id), which then cloaks -> the FreeCash offer. s1 = this affiliate's permanent
-// publisher_code; Monetise registers it as their FreeCash source. (slot 7) ===
+// === CONTINUE BUTTON — keeps the affiliate's SPK (s1, set on the ad link by the launcher)
+// UNTOUCHED for per-creative tracking, adds this affiliate's permanent publisher_code as s2
+// (the per-affiliate FreeCash source), and forwards to the trustonedeal lander -> SPRK door
+// -> FreeCash. Nothing is cut. (slot 7) ===
 (function(){
-  var DOOR = 'https://sprktrax.org/api/link/freecash';
+  var NEXT = 'https://www.trustonedeal.com/';
   var PUB  = 'pbef30c';
 
   function buildUrl(){
     var p = new URLSearchParams(window.location.search);
-    p.set('s1', PUB); // stamp THIS affiliate's source (authoritative; overrides any inbound s1)
-    return DOOR + '?' + p.toString();
+    if (!p.get('s2')) p.set('s2', PUB); // add the per-affiliate source; NEVER overwrite s1 (the SPK)
+    return NEXT + (p.toString() ? '?' + p.toString() : '');
   }
 
   document.getElementById('ctaBtn').addEventListener('click', function(){

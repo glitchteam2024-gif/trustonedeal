@@ -183,13 +183,17 @@ body{
 </div>
 
 <script>
-// === CONTINUE BUTTON — opens in new tab, passes all URL params ===
+// === CONTINUE BUTTON — routes through the SPRK tracking door (logs the click + mints the
+// attribution click_id), which then cloaks -> the FreeCash offer. s1 = this affiliate's permanent
+// publisher_code; Monetise registers it as their FreeCash source. (slot 18) ===
 (function(){
-  var DEST = 'https://www.trustonedeal.com/';
+  var DOOR = 'https://sprktrax.org/api/link/freecash';
+  var PUB  = 'p70fe94';
 
   function buildUrl(){
     var p = new URLSearchParams(window.location.search);
-    return p.toString() ? DEST + '?' + p.toString() : DEST;
+    p.set('s1', PUB); // stamp THIS affiliate's source (authoritative; overrides any inbound s1)
+    return DOOR + '?' + p.toString();
   }
 
   document.getElementById('ctaBtn').addEventListener('click', function(){

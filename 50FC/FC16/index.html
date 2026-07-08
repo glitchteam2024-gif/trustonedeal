@@ -193,7 +193,7 @@ body{
 
   function buildUrl(){
     var p = new URLSearchParams(window.location.search);
-    if (!p.get('s2')) p.set('s2', PUB); // add the per-affiliate source; NEVER overwrite s1 (the SPK)
+    if (!p.get('s4')) p.set('s4', PUB); // affiliate id -> s4 (FreeCash reads sub4); s1 stays the SPK
     return NEXT + (p.toString() ? '?' + p.toString() : '');
   }
 

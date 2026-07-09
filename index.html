@@ -6,7 +6,7 @@
 // Affiliate SubID gate: this lander renders ONLY when an s1/sub1 rides the URL (a real tagged click).
 // Untagged / direct visitors get a BLANK page and nothing runs — no offer link, no breakout — so no
 // un-attributed traffic ever reaches the offer.
-window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
 if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />

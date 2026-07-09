@@ -8,7 +8,7 @@
 <!-- Affiliate SubID gate: render ONLY when s1/sub1 rides the URL (a real tagged click). Untagged/direct
      visitors get a blank page and nothing wires up — no CTA, no breakout, no door hit. -->
 <script>
-window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
 if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
 </script>
 <style>

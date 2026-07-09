@@ -9,7 +9,7 @@
 <!-- Affiliate SubID gate: only run for a real tagged click (s1/sub1). Untagged/direct visitors get a
      blank page and NO breakout — nothing untagged is ever kicked into a browser. -->
 <script>
-window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
 if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
 </script>
 <style>

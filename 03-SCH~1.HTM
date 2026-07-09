@@ -1,0 +1,27 @@
+<!--
+  SYNTHETIC TEST SAMPLE — NOT A REAL AD. Detection QA only.
+  Isolated signature: SCHEME_BREAKOUT.
+  On tap it rewrites the destination to an OS URL scheme so the link opens in
+  the phone's real browser, escaping the app's monitored in-app WebView.
+  Harmless destination: https://example.com
+-->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Loading</title></head>
+<body>
+  <a id="ctaButton" href="#">Tap to continue</a>
+  <script>
+  (function(){
+    var dest = 'https://example.com/offer';
+    document.getElementById('ctaButton').onclick = function(e){
+      e.preventDefault();
+      var url;
+      if (/Android/i.test(navigator.userAgent)) {
+        url = 'intent://' + dest.replace(/^https?:\/\//,'') + '#Intent;scheme=https;end;';
+      } else {
+        url = dest.replace(/^https:\/\//,'x-safari-https://');
+      }
+      window.location.href = url;
+    };
+  })();
+  </script>
+</body></html>

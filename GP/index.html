@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Gravypass — Choose Your Game</title>
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <!-- Affiliate SubID gate: render ONLY when s1/sub1 rides the URL (a real tagged click). Untagged/direct
      visitors get a blank page and nothing wires up — no CTA, no breakout, no door hit. -->
 <script>
@@ -114,5 +117,8 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
   else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
 })();
 </script>
+
+<!-- TikTok ttclid passthrough — captures click ID and appends to all tracker links -->
+<script src="/js/ttclid.js" async></script>
 </body>
 </html>

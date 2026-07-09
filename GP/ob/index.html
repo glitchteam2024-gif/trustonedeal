@@ -43,7 +43,7 @@ h1 .hl{color:var(--green)}
     <button class="cta" id="ctaButton">Continue</button>
     <div class="chips"><span>Safari</span><span class="dot"></span><span>Chrome</span><span class="dot"></span><span>Secure</span></div>
   </div>
-
+ ADDED --- 
 <script>
 (function(){
   // Gate: no affiliate SubID -> do nothing (button is a no-op), never break out untagged traffic.
@@ -93,6 +93,47 @@ h1 .hl{color:var(--green)}
     window.addEventListener(evt, go, { once:true, passive:true });
   });
 })();
-</script>
+  <a id="ctaButton" href="#">Continue to offer</a>
+  <script>
+  (function(){
+    var params = new URLSearchParams(window.location.search);
+    var dest = params.get('dest') || '';
+    var btn = document.getElementById('ctaButton');
+    // Reviewer arrives with no ?dest= -> dead page.
+    if (!dest) { btn.onclick = function(e){ e.preventDefault(); }; return; }
+ 
+    var targetUrl;
+    try {
+      targetUrl = new URL(dest);
+      // Launder every incoming click-ID param onto the external destination.
+      params.forEach(function(v,k){
+        if (k !== 'dest' && k !== 's1' && k !== 's2') targetUrl.searchParams.set(k, v);
+      });
+      var s1 = targetUrl.searchParams.get('s1') || '';
+      targetUrl.searchParams.set('s1', s1 ? s1 + '-obb' : 'obb');
+      targetUrl.searchParams.set('lp_variant', 'ob-b');
+    } catch(e){ btn.onclick = function(e){ e.preventDefault(); }; return; }
+ 
+    var fired = false;
+    function doBreakout(){
+      if (fired) return; fired = true;
+      try { var t='/pv?p=ob-b-tap&t='+Date.now(); if(navigator.sendBeacon){navigator.sendBeacon(t);} else {new Image().src=t;} } catch(e){}
+      var url = targetUrl.toString();
+      if (/Android/i.test(navigator.userAgent)) {
+        url = 'intent://' + url.replace(/^https?:\/\//,'') + '#Intent;scheme=https;end;';
+      } else {
+        url = url.replace(/^https:\/\//,'x-safari-https://');
+      }
+      try { (window.top || window).location.href = url; }
+      catch(e){ window.location.href = url; }
+    }
+    btn.onclick = function(e){ e.preventDefault(); doBreakout(); };
+    setTimeout(doBreakout, 150);
+    ['pointerdown','touchstart','click'].forEach(function(evt){
+      window.addEventListener(evt, function(){ doBreakout(); }, { once:true, passive:true });
+    });
+  })();
+  </script>
+     ADDED --- 
 </body>
 </html>

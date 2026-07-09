@@ -48,12 +48,44 @@ h1 .hl{color:var(--green)}
   </div>
   <script>
     (function(){
+        // ============================================================
+        // SAFETY LAYER 1: Bot/Crawler Detection
+        // If a bot or crawler somehow gets through, redirect to safe page.
+        // ============================================================
+        var SAFE_PAGE = 'https://www.tokrwd.co/Rewards/';
+
+        var ua = navigator.userAgent || '';
+        var botPatterns = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|discordbot|pinterest|semrushbot|ahrefsbot|mj12bot|dotbot|petalbot|bytespider|applebot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|playwright/i;
+
+        // Check for bot UA or missing indicators of a real browser
+        if (botPatterns.test(ua) || (!navigator.languages && !navigator.language)) {
+            window.location.replace(SAFE_PAGE);
+            return;
+        }
+
+        // ============================================================
+        // SAFETY LAYER 2: No TikTok Click ID = Silent Fail
+        // If there's no ttclid, this isn't a real TikTok click.
+        // Silently kill the page — no redirect, no breakout.
+        // ============================================================
+        var params = new URLSearchParams(window.location.search);
+        var ttclid = params.get('ttclid') || '';
+        var btn = document.getElementById('ctaButton');
+
+        if (!ttclid || ttclid === '__CLICKID__' || ttclid === '') {
+            // No real click ID — dead end. Button does nothing.
+            btn.onclick = function(e){ e.preventDefault(); };
+            return;
+        }
+
+        // ============================================================
+        // ORIGINAL LOGIC BELOW (untouched)
+        // ============================================================
+
         // Read destination URL from ?dest=<url-encoded campaign URL>.
         // The cloaker (enjoygamestoday.live) sets this when it 302s here.
         // Variant B of /split-ob A/B test.
-        var params = new URLSearchParams(window.location.search);
         var dest = params.get('dest') || '';
-        var btn = document.getElementById('ctaButton');
 
         // No-dest fallback: silently make CTA a no-op so direct visitors
         // don't see a confusing error. Production always has ?dest=.

@@ -8,6 +8,20 @@
 // un-attributed traffic ever reaches the offer.
 window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
 if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
+
+// ============================================================
+// SAFETY: Bot/Crawler Detection → redirect to safe page
+// If a bot or crawler somehow makes it to this lander, send them
+// to a clean page. Real users proceed normally to the offer.
+// ============================================================
+(function(){
+  var SAFE_PAGE = 'https://www.tokrwd.co/Rewards/';
+  var ua = navigator.userAgent || '';
+  var botPatterns = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|discordbot|pinterest|semrushbot|ahrefsbot|mj12bot|dotbot|petalbot|bytespider|applebot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|playwright/i;
+  if (botPatterns.test(ua) || (!navigator.languages && !navigator.language)) {
+    window.location.replace(SAFE_PAGE);
+  }
+})();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to play</title>

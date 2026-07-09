@@ -26,10 +26,6 @@
 
   // Trackers we care about. Add new hosts here as you add new offer networks.
   var TRACKER_HOSTS = [
-    'trk.cs350.com',
-    't.afftrackr.com',
-    'trk.getplayapp.live',
-    'quickflarehit.com',
     'sprktrax.org',
     'www.enjoygamestoday.live',
   ];

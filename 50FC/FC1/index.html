@@ -264,17 +264,6 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     </div>
   </footer>
 
-  <!-- QUICK TIP interstitial: shown on CTA tap, then continues to the offer -->
-  <div class="tip-overlay" id="tipOverlay" hidden>
-    <div class="tip-card">
-      <button class="tip-close" id="tipClose" aria-label="Close">&times;</button>
-      <div class="tip-label">QUICK TIP</div>
-      <h2 class="tip-head">Select <span class="g">21+</span> when you sign&nbsp;up</h2>
-      <p class="tip-sub">This unlocks the highest-paying game offers on Freecash. Don't skip this step.</p>
-      <a class="tip-btn" id="tipGo" href="#">Got it &rarr;</a>
-    </div>
-  </div>
-
 <script>
   (function(){
     var el = document.getElementById('liveCount');
@@ -304,51 +293,48 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     }, 3800);
   })();
 
-  // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
-  // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    if (!window.__SUBID_OK) return; // no affiliate SubID -> page is blanked; wire nothing
-    // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
-    // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
-    // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
-    var DOOR = 'https://sprktrax.org/api/link/freecash';
-    var q = new URLSearchParams(location.search);
-    if (!q.get('s1')) {
-      var mc = q.get('mc_attr') || '', f = {};
-      mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
-      q.set('s1', f.e || f.c || 'mc');
-    }
-    var url = DOOR + '?' + q.toString();
+    if (!window.__SUBID_OK) return; 
+    
+    var PROXY_CLICK_URL = 'https://appflowconnect.com';
 
     var overlay = document.getElementById('tipOverlay');
-    document.getElementById('tipGo').href = url; // "Got it" goes to the offer
+    
+    document.getElementById('tipGo').href = PROXY_CLICK_URL; 
 
-    function openTip(e){ if (e) e.preventDefault(); overlay.hidden = false; document.body.style.overflow = 'hidden'; }
-    function closeTip(){ overlay.hidden = true; document.body.style.overflow = ''; }
+    function openTip(e){ 
+      if (e) e.preventDefault(); 
+      overlay.hidden = false; 
+      document.body.style.overflow = 'hidden'; 
+    }
+    
+    function closeTip(){ 
+      overlay.hidden = true; 
+      document.body.style.overflow = ''; 
+    }
 
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
-      a.setAttribute('href', url);          // fallback if the click handler is blocked
-      a.addEventListener('click', openTip); // intercept -> show the tip first
+      a.setAttribute('href', PROXY_CLICK_URL);          
+      a.addEventListener('click', openTip); 
     });
+    
     document.getElementById('tipClose').addEventListener('click', closeTip);
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });
   })();
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real browser
-     (Safari / Chrome) so app-install offers actually work. Safety net: FCx breaks out first;
-     this catches anyone who reached the lander still inside TikTok's webview. -->
+
 <script>
-(function(){
-  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
-  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
+(function() {
+    var PROXY_CLICK_URL = 'https://appflowconnect.com';
+    
+    if (window.location.search.includes('preview=true')) return;
+
+    window.history.pushState({page: 1}, "", window.location.href);
+    window.onpopstate = function(event) {
+        window.location.replace(PROXY_CLICK_URL);
+    };
 })();
 </script>
+
 </body>
 </html>

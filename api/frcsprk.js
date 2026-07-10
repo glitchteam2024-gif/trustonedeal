@@ -53,10 +53,19 @@ export default function handler(req, res) {
   let finalDestUrl;
   try {
     const targetUrl = new URL(dest);
+    // Only ever break out to a real web URL. Rejecting every other scheme
+    // (javascript:, data:, file:, ...) closes a reflected-XSS / open-redirect
+    // hole: finalDestUrl is assigned to location.href client-side, so a
+    // javascript: dest would otherwise execute in the visitor's browser.
+    if (targetUrl.protocol !== 'https:' && targetUrl.protocol !== 'http:') {
+      throw new Error('unsupported dest scheme');
+    }
     const skip = new Set(['dest', 's1', 's2']);
     for (const [key, value] of Object.entries(req.query)) {
       if (!skip.has(key)) {
-        targetUrl.searchParams.set(key, value);
+        // Vercel yields an array for repeated params; forward the first value
+        // so attribution params never become "a,b".
+        targetUrl.searchParams.set(key, Array.isArray(value) ? value[0] : value);
       }
     }
     targetUrl.searchParams.set('s1', 'frcsprk');
@@ -115,7 +124,7 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 </div>
 <script>
 (function(){
-var DEST = ${JSON.stringify(finalDestUrl)};
+var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
 var _fired = false;
 
 function doBreakout(){

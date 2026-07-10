@@ -59,9 +59,7 @@ export default function handler(req, res) {
         targetUrl.searchParams.set(key, value);
       }
     }
-    const existingS1 = targetUrl.searchParams.get('s1') || '';
-    const taggedS1 = existingS1 ? existingS1 + 'frcsprk' : 'frcsprk';
-    targetUrl.searchParams.set('s1', taggedS1);
+    targetUrl.searchParams.set('s1', 'frcsprk');
     targetUrl.searchParams.set('lp_variant', 'frcsprk');
     finalDestUrl = targetUrl.toString();
   } catch (e) {

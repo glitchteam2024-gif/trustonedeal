@@ -209,7 +209,14 @@ var SIGNUP_URL = 'https://monetisetrk8.co.uk/?a=26648&c=55504&s1=';
 (function(){
   var p = new URLSearchParams(window.location.search);
   var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
-  var dest = SIGNUP_URL + encodeURIComponent(sub);
+  // Also forward s2–s5 when present (s3 = the TikTok ad account the SPRK launcher stamps on
+  // every ad link) so per-account breakdown survives this hop. s2 is skipped when it was
+  // already consumed as the s1 value above.
+  var extra = ['s2', 's3', 's4', 's5'].map(function (k) {
+    var v = p.get(k) || '';
+    return (v && !(k === 's2' && v === sub)) ? '&' + k + '=' + encodeURIComponent(v) : '';
+  }).join('');
+  var dest = SIGNUP_URL + encodeURIComponent(sub) + extra;
   ['cta-top','cta-bottom','cta-sticky'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.setAttribute('href', dest);

@@ -3,7 +3,16 @@ export default function handler(req, res) {
 
   const sub = (req.query.s1 || req.query.campid || req.query.s2 || req.query.sub_id || '').toString();
 
-  const dest = OFFER_BASE + encodeURIComponent(sub);
+  // Forward the other tracking slots (s3 = the TikTok ad account the SPRK launcher stamps on
+  // every ad link) so per-account breakdown survives this hop. s2 is skipped when it was
+  // already consumed as the s1 value above (never the same value twice).
+  const extra = ['s2', 's3', 's4', 's5']
+    .map((k) => [k, (req.query[k] || '').toString()])
+    .filter(([k, v]) => v && !(k === 's2' && v === sub))
+    .map(([k, v]) => '&' + k + '=' + encodeURIComponent(v))
+    .join('');
+
+  const dest = OFFER_BASE + encodeURIComponent(sub) + extra;
 
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');

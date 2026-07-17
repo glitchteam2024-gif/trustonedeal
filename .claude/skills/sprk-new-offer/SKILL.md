@@ -34,13 +34,13 @@ subid reports even though the money attributes correctly to her account. Same ba
 
 **No SPRK code path may MINT a self-describing `<offerCode><affId>-<seq>` spark code for a
 locked affiliate. Locked-affiliate codes are always opaque `SPK-XXXX-XXXX`.** (Team rule
-2026-07-14, Migi — see `SPRKNetworkAds/api/CLAUDE.md` → "Spark codes / SubIDs". Note that doc's
-HARD RULE predates the aff<N> wire scheme below; the mint rule is what survives unchanged.)
+2026-07-14, Migi — see `SPRKNetworkAds/api/CLAUDE.md` → "Spark codes / SubIDs", which also
+documents the aff<N> outbound scheme below.)
 
-- `api/spark-code.js → generateSPKCode()` is the canonical generator. Any new creation path
-  (bulk upload, admin tool, worker) must produce codes through it — or an exact mirror of it:
-  `api/admin.js`'s house-copy mint carries an inline mirror (`spGen`, ~line 4623) that must stay
-  byte-identical. Never reconstruct `${offerCode}${affId}`.
+- `generateSPKCode()` in **`api/_lib/subid.js`** is the ONE shared mint — imported by
+  `api/spark-code.js` (creative mint) and `api/admin.js` (house scaling-pull copy). Any new
+  creation path (bulk upload, admin tool, worker) must import it too. Never reconstruct
+  `${offerCode}${affId}`, never re-inline a private copy.
 - `offers.code` (e.g. `CB`, `TU`) is a reporting label. `api/admin.js` builds the display-only
   `affofferid` (`(offer.code||'OFF') + affId`, e.g. `CB18`) for the admin UI — it never becomes
   a spark code, and admin link-assignment (`link_override`) rejects any link already carrying `s1=`.
@@ -91,20 +91,22 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
      the network URL (that's bypass failure mode C in `sprk-subid-attribution`).
 4. **Creatives**: affiliates add creatives in Spark Bank → `api/spark-code.js` auto-mints
    `SPK-XXXX-XXXX`, immutable for locked affiliates. Never hand-insert `spark_codes` rows.
-   ⚠️ **"Change Offer" re-links a creative WITHOUT re-minting** — a grandfathered non-SPK code
-   re-pointed at the new offer rides into its reports with its old code, weeks after wiring day.
-   The SQL audit below catches it only when re-run.
+   "Change Offer" re-links WITHOUT re-minting, but since 2026-07-16 it BLOCKS a locked
+   affiliate's legacy non-SPK creative from moving to a different offer (fail-open on lookup
+   blips — the nightly detector is the backstop).
 5. **Launcher**: nothing to configure for affiliates (resolved from `user_profiles.role` via the
    shared `resolveRoleFlags` helper): destination is resolved server-side and `?s1=<spk_code>`
-   is appended, campaign name forced to the SPK code. ⚠️ Role drift is the live hole: a stale
-   `coach` role (with the usual `user_type='non-affiliate'`) makes the launcher take the
-   NON-affiliate branch — it ships the legacy `subid_value` column as `s1` AND accepts a
-   client-supplied URL. `demo` can't launch (403). If a non-SPK subid shows up, check `role`
-   first (see the role-gating memory).
-6. **Affiliate link hygiene**: `default_link` (self-service `set_default_link`) is NOT screened
-   for embedded `s1=` and is the terminal launch fallback — an embedded s1 there makes
-   `appendSubid` skip the SPK. When onboarding an affiliate to the new offer, assign a proper LP
-   and make sure their `default_link` carries no `?s1=`.
+   is appended, campaign name forced to the SPK code. Role drift (a stale `coach` role) is
+   GUARDED since 2026-07-16: the SPK-FIRST rule in both launchers ships `spk_code` whenever the
+   creative carries an SPK code, even when role resolution says non-affiliate — the legacy
+   `subid_value` fallback only ever fires for pre-rework creator codes. `demo` can't launch
+   (403). A drifted role still weakens URL forcing, so fix `role` when you spot it (see the
+   role-gating memory).
+6. **Affiliate link hygiene**: all three launch-resolvable link fields are screened for an
+   embedded `s1=` (raw or %-encoded) by the shared `hasEmbeddedS1` oracle (`api/_lib/subid.js`):
+   `link_override` (via `pickLinkOverride`), `default_link` (`set_default_link` rejects at
+   write), and the LP manual `link` (`save_landing_page` rejects at write). Values written past
+   the validators by hand-run SQL are still dangerous — keep links s1-free.
 7. **Network postback** (per offer or account-global):
    `…&s1=#s1#&s2=#s2#&s3=#s3#&s4=#s4#&s5=#s5#&cid=#s5#&payout=#price#&txid=#tid#` — the `cid`
    macro's slot MUST equal `offers.clickid_slot`. They are set in two places (offer row +
@@ -134,8 +136,9 @@ followed), so spend exactly ONE deliberate GET, on the test code, and never foll
   `s4=<offer name>`. That is correct — don't mistake it for broken wiring. (No GET needed here.)
 - A bare lander URL (no `s1`) must still render (preview), but the door must 404.
 - SQL audit (read-only) — must return 0 rows for the new offer. Scans BOTH pollution channels:
-  non-SPK codes AND lingering legacy `subid_value` (the value a role-drifted launch would ship).
-  Over-reports on purpose — an audit must never under-report:
+  non-SPK codes AND lingering legacy `subid_value` (which only a creative WITHOUT an SPK-shaped
+  code can still ship, now that SPK-FIRST governs launches). Over-reports on purpose — an audit
+  must never under-report:
 
   ```sql
   select distinct s.spk_code, s.subid_value, u.email
@@ -168,23 +171,19 @@ To retire one properly: the affiliate re-adds the creative (fresh SPK auto-mints
 the ad → soft-delete the old row only after its traffic drains. That's money-path work: hand
 Migi the SQL, never write prod (standing rule).
 
-## Known loose ends — hardening backlog (each needs Migi's go-ahead, SPRKNetworkAds repo)
+## Hardening shipped 2026-07-16 (this repo) + the one remaining optional layer
 
-Confirmed open holes as of 2026-07-16; docs alone don't close them:
+All five backlog items from the CB18-1 review are LIVE in this repo: (1) the Change Offer gate
+(spark-code.js PATCH), (2) embedded-s1 screens on all three link fields (shared `hasEmbeddedS1`),
+(3) the nightly non-SPK detector (`code-audit.js`, `kind='nonspk_locked'` in `code_collisions` —
+the 5 grandfathered codes SHOW there on purpose; entries auto-resolve on soft-delete), (4) the
+shared `generateSPKCode` mint in `_lib/subid.js`, (5) the aff<N>-scheme doc updates (api/CLAUDE.md,
+freecash + subid-attribution skills, attribution map, tracking-scheme banner). Don't re-add these.
 
-1. **Change Offer gate** (`api/spark-code.js` PATCH offer_id): block re-linking a non-SPK code
-   owned by a locked affiliate ("re-add to auto-mint a fresh SPK").
-2. **s1 screens** on `set_default_link` (api/admin.js ~3788) and `save_landing_page` link
-   (~1114): reuse `pickLinkOverride`'s embedded-s1 rejection.
-3. **Nightly detector** (`api/cron/code-audit.js`): flag live non-SPK codes / legacy
-   `subid_value` on non-scaler owners — makes the audit automatic instead of wiring-day-only.
-4. **Shared generator**: export `generateSPKCode` from `api/_lib/subid.js` and import it in both
-   spark-code.js and admin.js (kills the byte-identical `spGen` mirror rule).
-5. **Stale docs to update for the aff<N> scheme** (they currently instruct reverting it):
-   `api/CLAUDE.md` (HARD-RULE rationale), `.claude/skills/sprk-freecash-funnel/SKILL.md`
-   (HARD RULE 1 + slot table), `.claude/skills/sprk-subid-attribution/SKILL.md` (3-leg order,
-   "forwards s1"), `docs/subid-attribution-map.md`, `docs/subid-tracking-scheme.md` (still says
-   the s2 flip is GATED/not built).
+Remaining OPTIONAL layer (needs Migi to run SQL): an INSERT-only BEFORE trigger on `spark_codes`
+rejecting `^[A-Za-z]{2,4}\d+-\d+$`-shaped codes for non-scaler owners — the only guard that would
+also catch hand-run SQL inserts. Propose it if Migi wants belt-and-braces; CHECK constraints won't
+work (legacy live rows match the pattern, and a CHECK can't do the role lookup).
 
 ## Close with the ELI5 recap (Migi's standing rule)
 

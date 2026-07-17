@@ -78,9 +78,9 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    conversions — set a sane per-conversion figure, not a placeholder.
 2. **Landing page row** (`landing_pages`): `slug` → the door URL is
    `https://sprktrax.org/api/link/<slug>`. **Leave `enforce_assignment` FALSE at this step** —
-   see step 8. ⚠️ If you paste anything into the LP's manual `link` field, it must NOT carry an
-   embedded `?s1=` (`save_landing_page` doesn't screen it, `appendSubid` respects an existing s1,
-   and a half-wired LP serves the manual link — a pasted legacy s1 would ride EVERY launch).
+   see step 8. The LP's manual `link` field is screened (write + read) by the shared
+   `launchLinkProblem` oracle — no fragments, no embedded `?s1=`, http(s) only; a rejected
+   value means the launch falls back rather than shipping a smuggled SubID.
 3. **Landers** (trustonedeal): copy the proven CR50/50TU pattern (`CR50/CR1/index.html`):
    - Inline offer-wiring script points at the DOOR (`sprktrax.org/api/link/<slug>`) and carries
      EVERY incoming query param through (esp. `?s1=<SPK>`); the real network URL never appears
@@ -92,8 +92,10 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
 4. **Creatives**: affiliates add creatives in Spark Bank → `api/spark-code.js` auto-mints
    `SPK-XXXX-XXXX`, immutable for locked affiliates. Never hand-insert `spark_codes` rows.
    "Change Offer" re-links WITHOUT re-minting, but since 2026-07-16 it BLOCKS a locked
-   affiliate's legacy non-SPK creative from moving to a different offer (fail-open on lookup
-   blips — the nightly detector is the backstop).
+   affiliate's legacy non-SPK creative from moving to a different offer — fail-CLOSED (a
+   lookup blip returns a retryable 503; a swap that slipped through would be permanent
+   pollution). Parking (clearing the offer) is allowed; un-parking a legacy code requires
+   re-adding the creative.
 5. **Launcher**: nothing to configure for affiliates (resolved from `user_profiles.role` via the
    shared `resolveRoleFlags` helper): destination is resolved server-side and `?s1=<spk_code>`
    is appended, campaign name forced to the SPK code. Role drift (a stale `coach` role) is
@@ -102,11 +104,12 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    `subid_value` fallback only ever fires for pre-rework creator codes. `demo` can't launch
    (403). A drifted role still weakens URL forcing, so fix `role` when you spot it (see the
    role-gating memory).
-6. **Affiliate link hygiene**: all three launch-resolvable link fields are screened for an
-   embedded `s1=` (raw or %-encoded) by the shared `hasEmbeddedS1` oracle (`api/_lib/subid.js`):
-   `link_override` (via `pickLinkOverride`), `default_link` (`set_default_link` rejects at
-   write), and the LP manual `link` (`save_landing_page` rejects at write). Values written past
-   the validators by hand-run SQL are still dangerous — keep links s1-free.
+6. **Affiliate link hygiene**: all three launch-resolvable link fields pass the shared
+   `launchLinkProblem` oracle (`api/_lib/subid.js` — scheme + fragment + embedded s1) at BOTH
+   write time (`set_link_override`, `set_default_link`, `save_landing_page` reject with the
+   reason) and read time (`pickLinkOverride`, `pickDefaultLink`, the LP-link fallback in
+   `resolveAffiliateOfferLinks` refuse silently) — so even values written by hand-run SQL or
+   stored before 2026-07-16 can never launch mis-attributed.
 7. **Network postback** (per offer or account-global):
    `…&s1=#s1#&s2=#s2#&s3=#s3#&s4=#s4#&s5=#s5#&cid=#s5#&payout=#price#&txid=#tid#` — the `cid`
    macro's slot MUST equal `offers.clickid_slot`. They are set in two places (offer row +

@@ -140,13 +140,13 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   Post-fix affiliate UI reads: CONVERSIONS tile = payable only; registrations appear ONLY as the
   "· N $0 events" hint — an affiliate reporting "my conversions disappeared" after 2026-07-18 is
   seeing this fix, not a tracking break.
-  Accepted residuals from the second review (all non-money, follow-ups): demo-role (earnShare=0)
-  accounts get tile N vs chart 0 (chart gates on post-tier event revenue); all-registrations day +
-  live CAKE pull FAILURE lands on the empty state instead of painting the $0-events view
-  (deliberate: snapshot stays money-only so it never shadows money); CSV export has no Installs
-  column (install-only rows export as zeros); a finite NEGATIVE price (reversal/clawback) would be
-  mislabeled a "$0 event" by both folds — shared classifier buckets negatives as neither (zero
-  negative rows in prod today).
+  RESIDUALS ALL CLOSED 2026-07-18: the four "accepted residuals" from the second review were fixed
+  by `bb2c8fb` (demo chart drift → per-event `paid` flag; empty-state on CAKE outage → snapPaint;
+  negative-price mislabel → shared classifier) and `8d5db29` (CSV "$0 Events" column + classifier
+  regression tests pinning negative gross → NEITHER bucket and non-finite price → UNKNOWN). The two
+  sessions raced to the same fix-pack; bb2c8fb's snapPaint/snapMoney split + installs-through-offer-
+  views superseded the second session's narrower variant — when two sessions work one bug, diff the
+  worktrees against origin/main before pushing anything.
   my-analytics.js line ~231 still uses a third predicate (event_type filter, gross-agnostic) —
   zero rows disagree in prod today (verified), latent drift; ideal end-state is one shared payable
   predicate across all surfaces.

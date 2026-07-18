@@ -72,6 +72,13 @@ READ-ONLY selects only. Any write (assign subid, backfill) → hand Migi the SQL
 Also always check the orphan bucket: `select spk_code, gross_payout, created_at from conversions
 where user_id is null and created_at > now()-interval '7 days'` — money that matched nobody.
 
+6. **ALWAYS cross-check `cake_conversions` (poll-cake's persisted CAKE truth) — the postback ledger
+   is NOT the whole story.** The postback under-captures payable conversions (see Known Issue #6):
+   `select count(*) filter (where gross_payout::numeric>0) as cake_paid, sum(gross_payout::numeric) filter (where gross_payout::numeric>0) as cake_gross from cake_conversions where user_id='<auth_id>'`
+   and compare against step 3. CAKE (MyMonetise) is the money source of truth for the affiliate's
+   Home dashboard; the admin revenue board reads only the postback `conversions` table. If
+   cake_paid > postback paid, the affiliate is RIGHT that money is missing from the admin side.
+
 ## Attribution model (what "matched" means)
 
 Inbound: `SPRKNetworkAds/api/postback.js`. Cascade: click_id (`cid`, from the offer's clickid slot,
@@ -101,14 +108,17 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   latent-drift note from the second review: admin `get_tracking_report` counts unknown-gross rows
   (event_type filter) that the payable predicate excludes — zero such rows in prod, same family as
   the my-analytics drift below.
-  IMPORTANT SCOPE NOTE (review finding): nothing in the UI renders `balance.conversions` today
-  (sidebar/settings read `balance.earned` only) — the number the AFFILIATE actually sees comes from
-  the `affiliate_earnings` Home fold in `api/cake-reports.js` (~line 1347, `per[key].conversions++`
-  with no `price > 0` gate; contrast perfDash line ~2146 which gates). Making the Home tile
-  payable-only is the REMAINING piece and per `sprk-money-audit` must touch the fold AND the
-  snapshot/poll-cake counting together. my-analytics.js line ~231 uses a third predicate
-  (event_type filter, gross-agnostic) — zero rows disagree in prod today (verified), but it's
-  latent drift; ideal end-state is one shared payable predicate across all three surfaces.
+  Home-tile piece PREPPED 2026-07-18 (NOT pushed — awaiting Migi's ship OK): branch
+  `fix/home-payable-conv-count`, commit `bc56569` — `affiliate_earnings` fold + `/api/snapshot`
+  count payable-only (raw pre-tier price/gross > 0, perfDash's rule) with $0 rows surfaced as
+  `installs` (tile + Convs cells show "· N $0 events"); frontend "has data" gates stay MONEY-ONLY
+  where they arbitrate authority so a $0 install-only pull can never wipe/shadow real money
+  (install-only views render via the cake-vs-postback pick, postback money preferred). Timeline
+  conversions series gates on event revenue > 0. Reviewed (3 finders + scenario verifier, both
+  findings fixed); prod sim: 6 users' counts change, dropped revenue $0 for all.
+  my-analytics.js line ~231 still uses a third predicate (event_type filter, gross-agnostic) —
+  zero rows disagree in prod today (verified), latent drift; ideal end-state is one shared payable
+  predicate across all surfaces.
 
 ### 2. The yellow "outside the creative tracker" banner is GLOBAL, not about the row you clicked
 - **Presents:** banner "Includes $X across N conversion(s) from SPKs outside the creative tracker"
@@ -141,13 +151,47 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   `subid_owners` (RS* = miguel, CB18-1 = Ashlyn, TU26-x = Testerup-era codes). Prevention for new
   offers lives in the `sprk-new-offer` skill. Not a bug — do not "clean up" these rows.
 
-### 5. Healthy-account baseline (what a NON-buggy new affiliate looks like — lolpantsnoa #29, 2026-07-17)
-Clicks land under their SPKs, $0 events arrive WITH click_id and match by user_id, zero payable
-rows simply means the network hasn't fired a paid conversion for their click_ids yet (Testerup pays
-$10 gross / $9 affiliate on completed tests, registrations pay $0). Verify with audit step 5 that
-someone else got paid rows the same day before suspecting the pipeline. Conclusion that day: account
-100% healthy — dispute was Known Issue #1 plus the range-scoping of the admin board (3 of his 9
-lifetime events were in the selected range).
+### 5. Healthy-account baseline — CORRECTED 2026-07-18: the first verdict was WRONG
+The 2026-07-17 session concluded lolpantsnoa #29 was "100% healthy, zero payable conversions yet"
+from the postback `conversions` table alone. The 2026-07-18 session checked `cake_conversions` and
+found **5 paid $10 Testerup conversions under his own SPK codes that the postback never delivered**
+(see #6). LESSON, now audit step 6: a clean postback trail (clicks land, $0 events match) proves the
+DOOR and event pixel work — it does NOT prove no money is missing. Never declare an account healthy
+without comparing against `cake_conversions`.
+
+### 6. Network payable postback under-capture — paid conversions in CAKE never reach /api/postback
+- **Presents:** affiliate's Home dashboard (CAKE-sourced, money truth) shows paid conversions +
+  earnings; admin revenue board (postback `conversions` table) shows $0 for the same user. The
+  affiliate is RIGHT.
+- **Facts (2026-07-18):** lolpantsnoa #29: 5/5 paid Testerup rows missing from postback ($50 gross /
+  $45 owed at 90/10), 2026-07-16, offer "Testerup - First Active User [UK/US/CA]" — his $0 event
+  postbacks arrived fine, so the door/event path works while the PAID-conversion fire doesn't.
+  Also short since 7/10: costajeffery5 #26 (17 pb vs 24 cake paid), ssammyofficial18 (1 vs 2).
+  Ashlyn/adan/timothy/miguel/ravitej/Trae counts match. Plus 160 paid rows / $1,410 gross sit in
+  cake_conversions with user_id NULL (mostly Trae's unregistered TRAE_* subids, issue #3).
+- **Root cause:** network-side (Monetise/CAKE portal) postback configuration — the paid-conversion
+  postback isn't firing for some offers/dispositions while the $0 event pixel does. NOT our code:
+  /api/postback records even unmatched hits, and nothing arrived at those timestamps.
+- **Fix/status:** OPEN. (a) Migi: check the Monetise portal's postback settings for the Testerup
+  "First Active User" offer (global vs per-offer postback, conversion vs event templates, disposition
+  filters). (b) Backfill the missing rows — DRAFT SQL below, Migi reviews + runs (never auto-run):
+  ```sql
+  -- lolpantsnoa's 5 missing paid Testerup conversions, from cake_conversions, 90/10 split.
+  -- Idempotent on txid = CAKE conversion_id (postback dedup key) — safe if the network re-fires.
+  insert into conversions (network_id, offer_id, user_id, aff_id, spk_code, txid, gross_payout,
+                           affiliate_payout, margin, status, created_at, commission_rate,
+                           commission_source, match_source)
+  select o.network_id, o.id, cc.user_id, 29, cc.spk_code, cc.conversion_id,
+         cc.gross_payout::numeric, round(cc.gross_payout::numeric * 0.9, 2),
+         round(cc.gross_payout::numeric * 0.1, 2), 'recorded', cc.conversion_at, 0.9,
+         'backfill-cake-20260718', 'cake-backfill'
+  from cake_conversions cc
+  join offers o on o.id = '62efd43c-e6bf-4ecc-8b1b-e35fff75b393'
+  where cc.user_id = '9b8b063d-d98f-40b5-8ada-7615d249da21' and cc.gross_payout::numeric > 0
+    and not exists (select 1 from conversions c where c.txid = cc.conversion_id);
+  ```
+  (c) Durable: a reconcile cron that flags (or inserts, Migi's call) payable cake_conversions rows
+  with no matching postback row — design not started.
 
 ## Closing the loop
 

@@ -12,7 +12,7 @@
     html,body{height:100%}
     body{
       background:#000;
-      background-image:radial-gradient(ellipse at 50% 38%,rgba(34,197,94,.07) 0%,rgba(0,0,0,0) 60%);
+      background-image:radial-gradient(ellipse at 50% 38%,rgba(255,0,0,.07) 0%,rgba(0,0,0,0) 60%);
       color:#fff;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       -webkit-font-smoothing:antialiased;
@@ -23,33 +23,33 @@
     .wrap{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;text-align:center}
     .icon{
       width:96px;height:96px;border-radius:22px;
-      background:linear-gradient(180deg,#0d1f12 0%,#080f0a 100%);
-      border:1px solid rgba(34,197,94,.18);
-      box-shadow:0 0 0 1px rgba(34,197,94,.04) inset,0 18px 50px rgba(34,197,94,.10);
+      background:linear-gradient(180deg,#1f0a0a 0%,#0f0606 100%);
+      border:1px solid rgba(255,0,0,.18);
+      box-shadow:0 0 0 1px rgba(255,0,0,.04) inset,0 18px 50px rgba(255,0,0,.10);
       display:flex;align-items:center;justify-content:center;margin-bottom:36px
     }
     .icon svg{width:44px;height:44px;display:block}
     h1{font-size:38px;line-height:1.15;font-weight:700;letter-spacing:-.5px;margin-bottom:18px;color:#fff}
-    h1 .accent{color:#22c55e;font-weight:700}
+    h1 .accent{color:#FF0000;font-weight:700}
     p.sub{font-size:17px;line-height:1.5;color:#6b7280;max-width:360px;margin:0 auto 48px;font-weight:400}
     button.btn{
       width:100%;max-width:420px;padding:22px 24px;
-      background:#22c55e;color:#fff;
+      background:#FF0000;color:#fff;
       font-size:17px;font-weight:800;letter-spacing:3px;
       border:none;border-radius:999px;cursor:pointer;
-      box-shadow:0 0 50px rgba(34,197,94,.30),0 0 100px rgba(34,197,94,.12);
+      box-shadow:0 0 50px rgba(255,0,0,.30),0 0 100px rgba(255,0,0,.12);
       transition:transform .08s ease,opacity .15s ease;font-family:inherit
     }
     button.btn:active{transform:scale(.985);opacity:.95}
     button.btn.secondary{
       background:transparent;color:#6b7280;
-      border:1px solid #1f2421;box-shadow:none;
+      border:1px solid #241f1f;box-shadow:none;
       margin-top:12px;font-size:14px;font-weight:600;
       letter-spacing:2px;padding:16px 24px
     }
     #ios-help{
       margin-top:24px;padding:16px 20px;
-      background:#0d0d0d;border:1px solid #1f2421;border-radius:14px;
+      background:#0d0d0d;border:1px solid #241f1f;border-radius:14px;
       font-size:14px;line-height:1.6;color:#9ca3af;text-align:left;
       width:100%;max-width:420px
     }
@@ -72,9 +72,9 @@
     #inapp-overlay.active{display:flex}
     .inapp-badge{
       display:inline-flex;align-items:center;gap:8px;
-      background:#0d1f12;border:1px solid rgba(34,197,94,.25);
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.25);
       border-radius:999px;padding:8px 16px;margin-bottom:32px;
-      font-size:12px;font-weight:700;color:#4ade80;letter-spacing:1px
+      font-size:12px;font-weight:700;color:#ff5c5c;letter-spacing:1px
     }
     .inapp-badge svg{width:13px;height:13px;flex-shrink:0}
     #inapp-overlay h2{
@@ -88,9 +88,9 @@
     #inapp-overlay .ov-sub strong{color:#d1d5db}
     #copied-toast{
       display:none;
-      background:#0d1f12;border:1px solid rgba(34,197,94,.3);
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.3);
       border-radius:8px;padding:10px 18px;
-      font-size:13px;color:#4ade80;font-weight:700;
+      font-size:13px;color:#ff5c5c;font-weight:700;
       margin-bottom:16px;letter-spacing:.4px
     }
     #copied-toast.show{display:block}
@@ -104,9 +104,9 @@
     .step+.step{border-top:1px solid #141414}
     .step-num{
       flex-shrink:0;width:24px;height:24px;border-radius:50%;
-      background:#0d1f12;border:1px solid rgba(34,197,94,.3);
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.3);
       display:flex;align-items:center;justify-content:center;
-      font-size:11px;font-weight:800;color:#22c55e;margin-top:1px
+      font-size:11px;font-weight:800;color:#FF0000;margin-top:1px
     }
     .step-text{font-size:14px;line-height:1.55;color:#9ca3af}
     .step-text strong{color:#e5e7eb}
@@ -129,7 +129,7 @@
   <div class="wrap">
     <div class="icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 17L17 7M17 7H9M17 7V15" stroke="#22c55e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 17L17 7M17 7H9M17 7V15" stroke="#FF0000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
     <h1>Open in <span class="accent">browser</span></h1>
@@ -152,7 +152,7 @@
     <div class="inapp-badge">
       <svg viewBox="0 0 24 24" fill="none">
         <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-          stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          stroke="#ff5c5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span id="app-name-badge">IN-APP BROWSER</span>
     </div>

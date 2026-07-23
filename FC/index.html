@@ -2,13 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<script>
-// Affiliate SubID gate: this lander renders ONLY when an s1/sub1 rides the URL (a real tagged click).
-// Untagged / direct visitors get a BLANK page and nothing runs — no offer link, no breakout — so no
-// un-attributed traffic ever reaches the offer.
-window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
-if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
-</script>
+<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
+     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
+     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
+     not need a gate — the door (api/link/[slug].js) 404s any click without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to play</title>
 <link rel="icon" type="image/webp" href="/images/freecash-logo.webp" />
@@ -284,7 +281,6 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
   // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    if (!window.__SUBID_OK) return; // no affiliate SubID -> page is blanked; wire nothing
     // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
     // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
@@ -293,7 +289,7 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     if (!q.get('s1')) {
       var mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
-      q.set('s1', f.e || f.c || 'mc');
+      var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
     }
     var url = DOOR + '?' + q.toString();
 
@@ -312,20 +308,9 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
   })();
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real browser
-     (Safari / Chrome) so app-install offers actually work. Safety net: FCx breaks out first;
-     this catches anyone who reached the lander still inside TikTok's webview. -->
-<script>
-(function(){
-  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
-  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
-})();
-</script>
+<!-- TikTok ttclid passthrough — captures the click ID and appends it to the sprktrax.org door link
+     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback.
+     Matches the /TU and /CB landers. -->
+<script src="/js/ttclid.js" async></script>
 </body>
 </html>

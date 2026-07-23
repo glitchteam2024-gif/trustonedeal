@@ -8,12 +8,8 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- Affiliate SubID gate: render ONLY when s1/sub1 rides the URL (a real tagged click). Untagged/direct
-     visitors get a blank page and nothing wires up — no CTA, no breakout, no door hit. -->
-<script>
-window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
-if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
-</script>
+<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for every
+     visitor, including ad-review crawlers. Attribution rides the query string to the door untouched. -->
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a140f;--card:#0f1d16;--border:rgba(34,197,94,.45);--accent:#22c55e;--accent-light:#4ade80;--text:#fff;--muted:#9ca3af}
@@ -94,27 +90,10 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 // cloaks -> the Gravypass offer). Forward EVERYTHING the ad/prelander passed: s1=<SPK>, s2=<publisher_code>,
 // ttclid, etc. — nothing dropped. Same door pattern as the FreeCash landers, slug = gravypass.
 (function(){
-  if(!window.__SUBID_OK) return;
   var DOOR = 'https://sprktrax.org/api/link/gravypass';
   var qs = location.search || '';
   var url = DOOR + qs;
   document.querySelectorAll('a.door').forEach(function(a){ a.setAttribute('href', url); });
-})();
-</script>
-
-<!-- TikTok/Meta in-app-browser breakout — fallback in case the ad hits this lander directly inside a
-     webview (the /GP/ob prelander normally breaks users out first). Only fires inside a known in-app
-     webview; a real Safari/Chrome session is left alone. -->
-<script>
-(function(){
-  if(!window.__SUBID_OK) return;
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if(!/tiktok|musical_ly|bytedance|FB_IAB|FBAN|FBAV|Instagram/i.test(ua)) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if(isIOS){ window.location.href = url.replace(/^https:\/\//,'x-safari-https://'); setTimeout(function(){window.location.href=url;},25); }
-  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
 })();
 </script>
 

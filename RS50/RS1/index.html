@@ -115,19 +115,5 @@ h1 .amt{color:transparent;background:linear-gradient(135deg,var(--blue),var(--pi
 
 <script>document.fonts.ready.then(function(){document.body.classList.add('ready')});setTimeout(function(){document.body.classList.add('ready')},800);</script>
 
-<!-- TikTok In-App Browser Breakout -->
-<script>
-(function(){
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var isTikTok = /tiktok|musical_ly|bytedance/i.test(ua);
-  if(!isTikTok) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  var isAndroid = /android/i.test(ua);
-  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
-  else if(isAndroid){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
-})();
-</script>
 </body>
 </html>

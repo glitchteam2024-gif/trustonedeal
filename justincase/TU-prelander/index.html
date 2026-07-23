@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Continue</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{
+      background:#000;
+      background-image:radial-gradient(ellipse at 50% 38%,rgba(255,0,0,.07) 0%,rgba(0,0,0,0) 60%);
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;overflow:hidden
+    }
+    .wrap{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;text-align:center}
+    .icon{
+      width:96px;height:96px;border-radius:22px;
+      background:linear-gradient(180deg,#1f0a0a 0%,#0f0606 100%);
+      border:1px solid rgba(255,0,0,.18);
+      box-shadow:0 0 0 1px rgba(255,0,0,.04) inset,0 18px 50px rgba(255,0,0,.10);
+      display:flex;align-items:center;justify-content:center;margin-bottom:36px
+    }
+    .icon svg{width:44px;height:44px;display:block}
+    h1{font-size:38px;line-height:1.15;font-weight:700;letter-spacing:-.5px;margin-bottom:18px;color:#fff}
+    h1 .accent{color:#FF0000;font-weight:700}
+    p.sub{font-size:17px;line-height:1.5;color:#6b7280;max-width:360px;margin:0 auto 48px;font-weight:400}
+    button.btn{
+      width:100%;max-width:420px;padding:22px 24px;
+      background:#FF0000;color:#fff;
+      font-size:17px;font-weight:800;letter-spacing:3px;
+      border:none;border-radius:999px;cursor:pointer;
+      box-shadow:0 0 50px rgba(255,0,0,.30),0 0 100px rgba(255,0,0,.12);
+      transition:transform .08s ease,opacity .15s ease;font-family:inherit
+    }
+    button.btn:active{transform:scale(.985);opacity:.95}
+    button.btn.secondary{
+      background:transparent;color:#6b7280;
+      border:1px solid #241f1f;box-shadow:none;
+      margin-top:12px;font-size:14px;font-weight:600;
+      letter-spacing:2px;padding:16px 24px
+    }
+    #ios-help{
+      margin-top:24px;padding:16px 20px;
+      background:#0d0d0d;border:1px solid #241f1f;border-radius:14px;
+      font-size:14px;line-height:1.6;color:#9ca3af;text-align:left;
+      width:100%;max-width:420px
+    }
+    #ios-help strong{color:#d1d5db}
+    .meta{margin-top:28px;color:#374151;font-size:14px;letter-spacing:.2px}
+    .meta span{white-space:nowrap}
+    .meta .dot{margin:0 10px;opacity:.7}
+
+    /* ── IN-APP OVERLAY ─────────────────────────────────────────── */
+    #inapp-overlay{
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,.98);
+      z-index:9999;
+      display:none;
+      flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:32px 24px;
+      text-align:center
+    }
+    #inapp-overlay.active{display:flex}
+    .inapp-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.25);
+      border-radius:999px;padding:8px 16px;margin-bottom:32px;
+      font-size:12px;font-weight:700;color:#ff5c5c;letter-spacing:1px
+    }
+    .inapp-badge svg{width:13px;height:13px;flex-shrink:0}
+    #inapp-overlay h2{
+      font-size:30px;font-weight:700;letter-spacing:-.3px;
+      line-height:1.2;margin-bottom:12px;color:#fff;max-width:320px
+    }
+    #inapp-overlay .ov-sub{
+      font-size:16px;line-height:1.55;color:#6b7280;
+      max-width:320px;margin:0 auto 36px
+    }
+    #inapp-overlay .ov-sub strong{color:#d1d5db}
+    #copied-toast{
+      display:none;
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.3);
+      border-radius:8px;padding:10px 18px;
+      font-size:13px;color:#ff5c5c;font-weight:700;
+      margin-bottom:16px;letter-spacing:.4px
+    }
+    #copied-toast.show{display:block}
+    .inapp-steps{
+      width:100%;max-width:380px;
+      background:#0a0a0a;border:1px solid #1a1a1a;
+      border-radius:16px;padding:6px 18px;
+      margin-top:20px;text-align:left
+    }
+    .step{display:flex;align-items:flex-start;gap:14px;padding:14px 0}
+    .step+.step{border-top:1px solid #141414}
+    .step-num{
+      flex-shrink:0;width:24px;height:24px;border-radius:50%;
+      background:#1f0a0a;border:1px solid rgba(255,0,0,.3);
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:800;color:#FF0000;margin-top:1px
+    }
+    .step-text{font-size:14px;line-height:1.55;color:#9ca3af}
+    .step-text strong{color:#e5e7eb}
+    .skip-link{
+      margin-top:24px;font-size:13px;color:#374151;
+      text-decoration:underline;cursor:pointer;
+      background:none;border:none;font-family:inherit;letter-spacing:.2px
+    }
+
+    @media(max-width:360px){
+      h1{font-size:32px}p.sub{font-size:15px}
+      .icon{width:84px;height:84px;border-radius:19px}.icon svg{width:38px;height:38px}
+      #inapp-overlay h2{font-size:26px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── MAIN PAGE ────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 17L17 7M17 7H9M17 7V15" stroke="#FF0000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Open in <span class="accent">browser</span></h1>
+    <p class="sub">For the best experience, this page needs to open in your browser.</p>
+    <button class="btn" id="open-btn" onclick="go()">CONTINUE</button>
+    <button class="btn secondary" id="copy-btn" onclick="copyLink()">COPY LINK</button>
+    <div id="ios-help" hidden>
+      Tap the <strong>&bull;&bull;&bull;</strong> or share icon in the top corner &rarr;
+      tap <strong>"Open in Browser"</strong> or <strong>"Open in Safari"</strong>.
+    </div>
+    <div class="meta">
+      <span>Safari</span><span class="dot">&middot;</span>
+      <span>Chrome</span><span class="dot">&middot;</span>
+      <span>Secure</span>
+    </div>
+  </div>
+
+  <!-- ── IN-APP OVERLAY ───────────────────────────────────────── -->
+  <div id="inapp-overlay">
+    <div class="inapp-badge">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+          stroke="#ff5c5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="app-name-badge">IN-APP BROWSER</span>
+    </div>
+    <h2>This won't work here</h2>
+    <p class="ov-sub">
+      You're inside <strong id="app-name-text">an in-app browser</strong>.
+      Open this in your real browser to continue.
+    </p>
+    <div id="copied-toast">&check; Link copied &mdash; paste in Safari</div>
+    <button class="btn" onclick="escapeInApp()" style="width:100%;max-width:380px">OPEN IN BROWSER</button>
+    <div class="inapp-steps" id="step-box"></div>
+    <button class="skip-link" onclick="dismissOverlay()">I'm already in a browser</button>
+  </div>
+
+  <script>
+    /* ============================================================================
+       PRELANDER — in-app-browser breakout in front of the "like" lander.
+
+       Flow:  ad (?s1=<SPK>&s2=&s3=&s4=&ttclid=…)
+                -> THIS prelander (breaks out of the in-app webview)
+                -> DEST like-lander (carries EVERY param through)
+                -> offer door (sprktrax.org/api/link/<slug>) -> offer.
+
+       Attribution: the affiliate is resolved in the backend from s1=<SPK>. We inject
+       NOTHING — we only make sure every incoming param survives the hop to DEST.
+       ========================================================================= */
+
+    /* ── SWAP: destination "like" lander for this offer (same domain, relative) ── */
+    var DEST = "/TU";          /* the offer's like-lander, same domain (relative) */
+    var SAFE = "/Rewards/";         /* compliant page for bots / ad review */
+    /* ─────────────────────────────────────────────────────────────────────────── */
+
+    // ── UA & platform flags ────────────────────────────────────────
+    var ua        = navigator.userAgent || navigator.vendor || window.opera || '';
+    var isAndroid = /Android/i.test(ua) && !/Windows|Macintosh|Linux x86|X11/i.test(ua);
+    var isIOS     = /iPhone|iPad|iPod/i.test(ua) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // ── Build DEST carrying EVERY incoming param (s1,s2,s3,s4,ttclid,…) + loop flag ──
+    // Relative DEST is resolved against the current origin so intent:// / x-safari
+    // always get an absolute https URL to reopen.
+    function buildTarget() {
+      var u;
+      try { u = new URL(DEST, location.origin); }
+      catch (e) { return DEST; }
+      new URLSearchParams(location.search).forEach(function (v, k) {
+        if (k !== 'inapp_ok') u.searchParams.set(k, v);   // forward everything, untouched
+      });
+      u.searchParams.set('inapp_ok', '1');                // loop guard
+      return u.toString();
+    }
+
+    // Loop guard lives in init() below, so it returns cleanly before any breakout can fire.
+
+    // ── In-app app detection ───────────────────────────────────────
+    var APP_MAP = [
+      { key:'instagram', name:'Instagram',    re:/Instagram/i },
+      { key:'tiktok',    name:'TikTok',       re:/musical_ly|BytedanceWebview|TikTok/i },
+      { key:'facebook',  name:'Facebook',     re:/FBAN|FBAV|FB_IAB|FB4A|FBIOS/i },
+      { key:'messenger', name:'Messenger',    re:/Messenger/i },
+      { key:'twitter',   name:'X \/ Twitter', re:/Twitter/i },
+      { key:'snapchat',  name:'Snapchat',     re:/Snapchat/i },
+      { key:'linkedin',  name:'LinkedIn',     re:/LinkedInApp/i },
+      { key:'line',      name:'Line',         re:/Line\//i },
+      { key:'wechat',    name:'WeChat',       re:/MicroMessenger/i },
+      { key:'pinterest', name:'Pinterest',    re:/Pinterest/i },
+    ];
+
+    function detectApp() {
+      for (var i = 0; i < APP_MAP.length; i++) {
+        if (APP_MAP[i].re.test(ua)) return APP_MAP[i];
+      }
+      if (isAndroid && /wv\b|WebView/i.test(ua)) return { key:'webview', name:'an in-app browser' };
+      if (isIOS     && !/Safari/i.test(ua))       return { key:'webview', name:'an in-app browser' };
+      return null;
+    }
+
+    // ── Client-side bot / ad-review scoring → compliant safe page ──
+    // Mirrors the old FC1 / /go breakout: obvious automation never sees the offer.
+    function looksLikeReview() {
+      var hits = 0;
+      if (navigator.webdriver)                                                                          hits++;
+      if (/headless|phantom|selenium|puppeteer|playwright/i.test(ua))                                  hits++;
+      if (!navigator.plugins || navigator.plugins.length === 0)                                        hits++;
+      if (navigator.maxTouchPoints === 0 && /android|iphone|ipad/i.test(ua))                           hits++;
+      if (window.screen.width === window.screen.height)                                                 hits++;
+      if (!window.WebGLRenderingContext)                                                                hits++;
+      if (!navigator.languages || navigator.languages.length === 0)                                    hits++;
+      if (/googlebot|bingbot|bytespider|facebookexternalhit|applebot|semrushbot|ahrefsbot/i.test(ua))  hits += 2;
+      return hits >= 3;
+    }
+
+    // ── Android intent:// escape (carries the built target incl. all params) ──
+    function androidEscape(target) {
+      var noProto = target.replace(/^https?:\/\//, '');
+      window.location.href =
+        'intent://' + noProto +
+        '#Intent;scheme=https;' +
+        'action=android.intent.action.VIEW;' +
+        'category=android.intent.category.BROWSABLE;' +
+        'S.browser_fallback_url=' + encodeURIComponent(target) + ';end';
+    }
+
+    // ── iOS escape — proven x-safari-https scheme (same trick the offer landers use),
+    //    plus auto-copy so the user can paste if the OS blocks the jump. ──
+    function iosEscape(target) {
+      autoCopy(target);
+      window.location.href = 'x-safari-' + target;              // target is absolute https
+      setTimeout(function () { window.location.href = target; }, 1200); // last-ditch: load in place
+    }
+
+    // ── Clipboard helpers ──────────────────────────────────────────
+    function autoCopy(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showCopiedToast).catch(function(){ fallbackCopy(text); });
+        } else { fallbackCopy(text); }
+      } catch (e) { fallbackCopy(text); }
+    }
+    function fallbackCopy(text) {
+      try {
+        var el = document.createElement('textarea');
+        el.value = text; el.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(el); el.focus(); el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showCopiedToast();
+      } catch (e) {}
+    }
+    function showCopiedToast() {
+      var t = document.getElementById('copied-toast');
+      if (t) t.classList.add('show');
+    }
+
+    // ── Per-app step instructions ──────────────────────────────────
+    function buildSteps(app) {
+      var steps;
+      if (isAndroid) {
+        steps = [
+          'Tap <strong>Open in Browser</strong> above',
+          'If nothing happens tap the <strong>&#8942; menu</strong> top-right',
+          'Select <strong>"Open in Chrome"</strong> or <strong>"Open in browser"</strong>',
+        ];
+      } else if (app && app.key === 'instagram') {
+        steps = [
+          'Tap the <strong>&ctdot;</strong> icon at the top right',
+          'Select <strong>"Open in external browser"</strong>',
+          'Or paste the auto-copied link into <strong>Safari</strong>',
+        ];
+      } else if (app && app.key === 'tiktok') {
+        steps = [
+          'Tap <strong>&ctdot;</strong> at the bottom right',
+          'Tap <strong>"Open in browser"</strong>',
+          'Or paste the auto-copied link into <strong>Safari</strong>',
+        ];
+      } else if (app && app.key === 'facebook') {
+        steps = [
+          'Tap the <strong>&ctdot;</strong> icon top right',
+          'Tap <strong>"Open in Safari"</strong>',
+          'Or paste the auto-copied link into <strong>Safari</strong>',
+        ];
+      } else {
+        steps = [
+          'Tap the <strong>&bull;&bull;&bull;</strong> or share <strong>&uparrow;</strong> icon',
+          'Select <strong>"Open in Safari"</strong> or <strong>"Open in Browser"</strong>',
+          'Or paste the auto-copied link into <strong>Safari</strong>',
+        ];
+      }
+      var html = steps.map(function (s, i) {
+        return '<div class="step"><div class="step-num">' + (i + 1) +
+               '</div><div class="step-text">' + s + '</div></div>';
+      }).join('');
+      document.getElementById('step-box').innerHTML = html;
+    }
+
+    // ── Show / dismiss overlay ─────────────────────────────────────
+    function showOverlay(app) {
+      var name = app ? app.name : 'an in-app browser';
+      document.getElementById('app-name-badge').textContent =
+        (app && app.key !== 'webview' ? app.name.toUpperCase() : 'IN-APP') + ' BROWSER';
+      document.getElementById('app-name-text').textContent = name;
+      buildSteps(app);
+      document.getElementById('inapp-overlay').classList.add('active');
+    }
+    function dismissOverlay() {
+      document.getElementById('inapp-overlay').classList.remove('active');
+    }
+
+    // ── Proceed to the offer (used by every CTA) ───────────────────
+    function proceed() {
+      var target = buildTarget();
+      if (isAndroid)    { androidEscape(target); }
+      else if (isIOS)   { iosEscape(target); }
+      else              { window.location.href = target; }
+    }
+
+    // Overlay CTA + main-page CONTINUE both proceed.
+    function escapeInApp() { proceed(); }
+    function go() {
+      if (isIOS) { var h = document.getElementById('ios-help'); if (h) h.hidden = false; }
+      proceed();
+    }
+
+    function copyLink() {
+      var target = buildTarget();
+      var btn = document.getElementById('copy-btn');
+      function flash() {
+        if (!btn) return;
+        btn.textContent = 'COPIED!';
+        setTimeout(function () { btn.textContent = 'COPY LINK'; }, 2000);
+      }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(target).then(flash).catch(flash);
+      } else {
+        var el = document.createElement('textarea');
+        el.value = target; el.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(el); el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        flash();
+      }
+    }
+
+    // ── AUTO-INIT ──────────────────────────────────────────────────
+    (function init() {
+      // 0) Already broke out once (inapp_ok present) → straight to the lander, no re-breakout.
+      if (new URLSearchParams(location.search).has('inapp_ok')) {
+        window.location.replace(buildTarget()); return;
+      }
+      // 1) Obvious bots / ad review → compliant page, nothing else runs.
+      if (looksLikeReview()) { window.location.replace(SAFE); return; }
+
+      var app = detectApp();
+
+      // 2) Real browser already → shoot straight to the like lander, params intact.
+      if (!app) { window.location.replace(buildTarget()); return; }
+
+      // 3) In-app webview → keep the simple "Open in browser" screen visible and
+      //    auto-fire the breakout (logic unchanged; no full-screen "This won't work here" overlay).
+      if (isAndroid) {
+        setTimeout(function () { androidEscape(buildTarget()); }, 700);
+      } else if (isIOS) {
+        autoCopy(buildTarget());
+        setTimeout(function () { window.location.href = 'x-safari-' + buildTarget(); }, 300);
+      }
+    })();
+  </script>
+
+</body>
+</html>

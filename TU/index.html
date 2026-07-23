@@ -2,15 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<script>
-// SubID gate DISABLED (Migi 2026-07-14): the blank-without-s1 behavior hid the whole page during
-// preview. Removed — this lander ALWAYS renders now, matching the rest of the tokrwd landers (all
-// pinned open). Attribution is NOT weakened: real launcher traffic still carries ?s1=<SPK>, the offer
-// wiring passes it to the sprktrax door, and the DOOR itself still 404s any truly untagged click
-// (api/link/[slug].js: `if (!spk) return 404`), so no un-attributed visitor can ever convert.
-// __SUBID_OK stays true so the offer-wiring + breakout scripts below (which guard on it) still run.
-window.__SUBID_OK = true;
-</script>
+<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
+     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
+     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
+     not need a gate — the door 404s any untagged click (api/link/[slug].js: `if (!spk) return 404`). -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to test apps</title>
 <link rel="icon" type="image/png" href="/images/testerup-logo.png" />
@@ -308,9 +303,6 @@ window.__SUBID_OK = true;
 (function () {
   'use strict';
 
-  // Affiliate SubID gate: if the lander blanked itself (no tagged click), wire nothing.
-  if (!window.__SUBID_OK) return;
-
   // The SPRK tracking DOOR (slug 'testerup'). The door records the first-party click, mints the
   // click_id, stamps the per-affiliate label, then 302s to the Testerup offer — the real network URL
   // lives in the offer row (api/link/[slug].js), never in this lander. Mirrors Freecash's door.
@@ -359,21 +351,6 @@ window.__SUBID_OK = true;
   } else {
     wire();
   }
-})();
-</script>
-
-<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real browser
-     (Safari / Chrome) so app-install offers actually work. -->
-<script>
-(function(){
-  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
-  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
 })();
 </script>
 

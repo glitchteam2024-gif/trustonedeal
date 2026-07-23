@@ -263,16 +263,20 @@ without comparing against `cake_conversions`.
   are silently dropped. Landers resolve from `landing_pages.link` (raw tokrwd lander) whenever
   `lp_domains` has 0 active rows — which is the case today, so EVERY affiliate link is a tokrwd
   lander, not the door redirector.
-- **The gotcha:** in `trustonedeal` the 50FC/50TU/50FCII/CR50 landers are 50 byte-identical
-  prelanders that forward `URLSearchParams(location.search) → sprktrax.org/api/link/<offer>` (s3
-  rides). But a `dest`-breakout/cloaking lander (reads only `?dest=`, forwards NOTHING) drops s1/s3.
-  **FC1 was the lone broken one** (also the LP assigned to Freecash) — fixed to the canonical
-  forwarding prelander 2026-07-20 (`tokrwd` main `adbeae8`). RS50 (Reco Social) intentionally does
-  NOT forward — it's a door-bypassing model (see #4).
+- **The gotcha:** in `trustonedeal` the 50FC/50TU/50FCII/CR50 landers are 50 byte-identical copies
+  of the offer's canonical lander (`/FC` = `/FCTT`, `/TU`, `/CB`), each forwarding
+  `URLSearchParams(location.search) → sprktrax.org/api/link/<offer>` (s3 rides). But a
+  `dest`-breakout/cloaking page (reads only `?dest=`, forwards NOTHING) drops s1/s3. **FC1 was the
+  lone broken one** (also the LP assigned to Freecash) — fixed 2026-07-20 (`tokrwd` main `adbeae8`).
+  RS50 (Reco Social) intentionally does NOT forward — it's a door-bypassing model (see #4).
+- **No prelander step (2026-07-21):** the in-app-breakout prelander that briefly sat in front of
+  these landers was removed — every folder is the single lander again, ad → lander → door. One copy
+  per brand is archived, unwired, in `justincase/{FC,TU,CB}-prelander/` (repo root) with restore
+  instructions in `justincase/README.md`. Don't diagnose a missing prelander hop.
 - **How to check:** the affiliate's assigned lander = `select link from landing_pages where
   offer_id=…`; then in `trustonedeal` grep that lander's index.html for
   `sprktrax.org/api/link` + `URLSearchParams(location.search)` (forwards) vs `params.get('dest')`
-  (breakout — broken). Fix = make it the canonical forwarding prelander (`cp` a sibling FCx over it).
+  (breakout — broken). Fix = `cp` the offer's canonical lander (`FC/`, `TU/`, `CB/`) over it.
 - **Fix/status:** FC folder 50/50 forwarding as of `adbeae8`. When a NEW attribution-blank report
   comes in, always verify the assigned lander forwards before blaming the wire/postback.
 

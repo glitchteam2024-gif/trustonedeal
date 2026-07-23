@@ -9,19 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
-<script>
-(function(){
-  var ua=navigator.userAgent||navigator.vendor||window.opera;
-  var isTikTok=/tiktok|musical_ly|bytedance/i.test(ua);
-  if(!isTikTok)return;
-  try{if(sessionStorage.getItem('ttBreakout')==='1')return;sessionStorage.setItem('ttBreakout','1');}catch(e){}
-  var url=window.location.href;
-  var isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
-  var isAndroid=/android/i.test(ua);
-  if(isIOS){window.location.href='x-safari-'+url;setTimeout(function(){window.location.href=url;},25);}
-  else if(isAndroid){window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end';setTimeout(function(){window.location.href=url;},25);}
-})();
-</script>
+<!-- No UA sniffing, no browser breakout: this page renders the SAME markup for every visitor,
+     including ad-review crawlers. The CTA's handleRedirect() forwards the full query to the door. -->
 <style>
   :root{
     --bg:#09090b;

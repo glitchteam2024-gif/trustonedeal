@@ -23,9 +23,6 @@
 (function () {
   'use strict';
 
-  // Affiliate SubID gate: if the lander blanked itself (no tagged click), wire nothing.
-  if (!window.__SUBID_OK) return;
-
   // ---- The offer link. Fixed advertiser (a) + campaign (c); s1 is filled at runtime. ----
   var OFFER_BASE = 'https://monetisetrk8.co.uk/?a=26648&c=56132&s1=';
 

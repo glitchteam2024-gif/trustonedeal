@@ -73,8 +73,11 @@
     if (!isTrackerLink(anchor.href)) return;
     try {
       var u = new URL(anchor.href);
-      // Don't clobber an explicit ttclid the lander already set.
-      if (u.searchParams.has('ttclid')) return;
+      // Don't clobber an explicit ttclid the lander already set. Test the VALUE, not the key:
+      // TikTok ad templates often send an empty `&ttclid=` when the macro doesn't fill, and the
+      // lander forwards that empty key onto the door link. has() would see it and bail, leaving
+      // the click ID blank even though we hold the real one in the cookie.
+      if (u.searchParams.get('ttclid')) return;
       u.searchParams.set('ttclid', ttclid);
       anchor.href = u.toString();
     } catch (e) {

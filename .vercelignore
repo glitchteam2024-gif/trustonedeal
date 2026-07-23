@@ -1,0 +1,7 @@
+# Archived, unwired copies of the removed in-app-breakout prelander. Kept in git as a rollback
+# reference only — never deployed. These pages UA-sniff and redirect ad-review traffic elsewhere,
+# which is exactly what gets a lander flagged, so they must not be reachable on the live domain.
+justincase/
+
+# Cloaking-technique demo/QA fixtures — reference only, never served on the live domain.
+SIGNAT~1/

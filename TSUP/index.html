@@ -2,13 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<script>
-// Affiliate SubID gate: this lander renders ONLY when an s1/sub1 rides the URL (a real tagged click).
-// Untagged / direct visitors get a BLANK page and nothing runs — no offer link, no breakout — so no
-// un-attributed traffic ever reaches the offer.
-window.__SUBID_OK = true; /* gate disabled for testing — all landers render regardless of s1 */
-if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
-</script>
+<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for every
+     visitor, including ad-review crawlers. Attribution rides the query string to the offer untouched. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to test apps</title>
 <link rel="icon" type="image/png" href="/images/testerup-logo.png" />
@@ -296,21 +291,6 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
 
   // NOTE: the offer link + CTA/Quick-Tip wiring lives in /js/tsup-offer.js (loaded below),
   // so the destination URL is never hardcoded in this lander.
-</script>
-<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real browser
-     (Safari / Chrome) so app-install offers actually work. Safety net: upstream lander breaks out
-     first; this catches anyone who reached the lander still inside TikTok's webview. -->
-<script>
-(function(){
-  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
-  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
-  var url = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
-  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
-})();
 </script>
 
 <!-- Testerup offer wiring — builds the offer link at runtime (keeps it out of the markup)
